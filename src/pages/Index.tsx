@@ -3,7 +3,6 @@ import Header from "@/components/Header";
 import UploadZone from "@/components/UploadZone";
 import FilesList from "@/components/FilesList";
 import CombineSection from "@/components/CombineSection";
-import PrivacyMessage from "@/components/PrivacyMessage";
 import { PDFFile, combinePDFs, downloadPDF } from "@/utils/pdfUtils";
 import { toast } from "sonner";
 
@@ -146,8 +145,6 @@ const Index = () => {
             </div>
           )}
 
-          {/* Privacy Message */}
-          <PrivacyMessage />
         </div>
       </main>
 
