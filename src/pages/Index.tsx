@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import Header from "@/components/Header";
+import HeroSection from "@/components/HeroSection";
 import UploadZone from "@/components/UploadZone";
 import FilesList from "@/components/FilesList";
 import CombineSection from "@/components/CombineSection";
@@ -14,6 +15,20 @@ const Index = () => {
   const [mergedPdfBytes, setMergedPdfBytes] = useState<Uint8Array | null>(null);
 
   const handleFilesSelected = useCallback((newFiles: File[]) => {
+    // Validate file types and sizes
+    const invalidFiles = newFiles.filter(f => f.type !== "application/pdf");
+    const oversizedFiles = newFiles.filter(f => f.size > 50 * 1024 * 1024);
+    
+    if (invalidFiles.length > 0) {
+      toast.error("Only PDF files are supported.");
+      return;
+    }
+    
+    if (oversizedFiles.length > 0) {
+      toast.error("Some files exceed the 50MB size limit.");
+      return;
+    }
+
     const pdfFiles: PDFFile[] = newFiles.map((file) => ({
       id: `${file.name}-${Date.now()}-${Math.random()}`,
       file,
@@ -74,18 +89,23 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-4xl space-y-8">
-          {/* Upload Zone */}
+      <main className="container mx-auto px-4 py-12">
+        <div className="mx-auto max-w-6xl space-y-12">
+          {/* Hero Section with Instructions */}
           {files.length === 0 && (
-            <div className="animate-fade-in">
-              <UploadZone
-                onFilesSelected={handleFilesSelected}
-                isDragging={isDragging}
-                onDragEnter={() => setIsDragging(true)}
-                onDragLeave={() => setIsDragging(false)}
-              />
-            </div>
+            <>
+              <HeroSection />
+              
+              {/* Upload Zone */}
+              <div className="animate-fade-in">
+                <UploadZone
+                  onFilesSelected={handleFilesSelected}
+                  isDragging={isDragging}
+                  onDragEnter={() => setIsDragging(true)}
+                  onDragLeave={() => setIsDragging(false)}
+                />
+              </div>
+            </>
           )}
 
           {/* Files List */}
@@ -119,9 +139,7 @@ const Index = () => {
                       accept=".pdf"
                       onChange={(e) => {
                         if (e.target.files) {
-                          const newFiles = Array.from(e.target.files).filter(
-                            (file) => file.type === "application/pdf"
-                          );
+                          const newFiles = Array.from(e.target.files);
                           handleFilesSelected(newFiles);
                         }
                       }}
