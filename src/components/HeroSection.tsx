@@ -3,12 +3,12 @@ import { Upload, ArrowDownUp, Download } from "lucide-react";
 const HeroSection = () => {
   return (
     <section className="text-center space-y-6 animate-fade-in">
-      <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-        Combine Your PDFs in Seconds
-      </h2>
+      <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+        Free PDF Merger – Combine PDFs Online
+      </h1>
       <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-        Fast, secure, and completely private. Merge multiple PDF files into one
-        professional document without uploading to any server.
+        Fast, secure, and completely private. <strong>Merge multiple PDF files</strong> into one
+        professional document without uploading to any server. The best <strong>free PDF combiner tool</strong> for instant results.
       </p>
 
       {/* Step-by-step instructions */}
