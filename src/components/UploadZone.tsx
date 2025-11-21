@@ -1,5 +1,6 @@
 import { Upload } from "lucide-react";
 import { useCallback } from "react";
+import { toast } from "sonner";
 
 interface UploadZoneProps {
   onFilesSelected: (files: File[]) => void;
@@ -13,13 +14,32 @@ const UploadZone = ({ onFilesSelected, isDragging, onDragEnter, onDragLeave }: U
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       onDragLeave();
-      
-      const files = Array.from(e.dataTransfer.files).filter(
+
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      const pdfFiles = droppedFiles.filter(
         (file) => file.type === "application/pdf"
       );
       
-      if (files.length > 0) {
-        onFilesSelected(files);
+      const invalidFiles = droppedFiles.filter(
+        (file) => file.type !== "application/pdf"
+      );
+
+      if (invalidFiles.length > 0) {
+        toast.error(`${invalidFiles.length} file(s) skipped. Only PDF files are supported.`);
+      }
+
+      if (pdfFiles.length > 0) {
+        // Check file sizes (50MB limit per file)
+        const oversizedFiles = pdfFiles.filter(file => file.size > 50 * 1024 * 1024);
+        if (oversizedFiles.length > 0) {
+          toast.error(`${oversizedFiles.length} file(s) exceed 50MB limit and were skipped.`);
+          const validFiles = pdfFiles.filter(file => file.size <= 50 * 1024 * 1024);
+          if (validFiles.length > 0) {
+            onFilesSelected(validFiles);
+          }
+        } else {
+          onFilesSelected(pdfFiles);
+        }
       }
     },
     [onFilesSelected, onDragLeave]
