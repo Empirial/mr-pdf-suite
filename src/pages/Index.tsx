@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import UploadZone from "@/components/UploadZone";
 import FilesList from "@/components/FilesList";
 import CombineSection from "@/components/CombineSection";
+import DownloadDialog from "@/components/DownloadDialog";
 import { PDFFile, combinePDFs, downloadPDF } from "@/utils/pdfUtils";
 import { toast } from "sonner";
 
@@ -13,6 +14,7 @@ const Index = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [mergedPdfBytes, setMergedPdfBytes] = useState<Uint8Array | null>(null);
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
 
   const handleFilesSelected = useCallback((newFiles: File[]) => {
     // Validate file types and sizes
@@ -71,10 +73,13 @@ const Index = () => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownloadClick = () => {
+    setShowDownloadDialog(true);
+  };
+
+  const handleDownload = (filename: string) => {
     if (mergedPdfBytes) {
-      const timestamp = new Date().toISOString().split("T")[0];
-      downloadPDF(mergedPdfBytes, `merged-pdf-${timestamp}.pdf`);
+      downloadPDF(mergedPdfBytes, `${filename}.pdf`);
       toast.success("Download started!");
     }
   };
@@ -157,7 +162,7 @@ const Index = () => {
                 isProcessing={isProcessing}
                 isComplete={isComplete}
                 onCombine={handleCombine}
-                onDownload={handleDownload}
+                onDownload={handleDownloadClick}
                 fileCount={files.length}
               />
             </div>
@@ -165,6 +170,13 @@ const Index = () => {
 
         </div>
       </main>
+
+      {/* Download Dialog */}
+      <DownloadDialog
+        open={showDownloadDialog}
+        onOpenChange={setShowDownloadDialog}
+        onDownload={handleDownload}
+      />
 
       <footer className="border-t border-border py-6 text-center">
         <p className="text-sm text-muted-foreground">
