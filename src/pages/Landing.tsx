@@ -177,9 +177,7 @@ const Landing = () => {
                     Start Free Trial
                   </Button>
 
-                  <p className="text-center text-sm text-gray-500 mt-4">
-                    No credit card required • Cancel anytime
-                  </p>
+                  <p className="text-center text-sm text-gray-500 mt-4">3 Days Trial - Unlimited Acces</p>
                 </div>
               </div>
             </div>
