@@ -29,7 +29,7 @@ const Landing = () => {
     href: "/convert",
     color: "bg-[#2C2C2C]"
   }];
-  const features = ["100% Private - No uploads to servers", "Lightning fast processing", "No file size limits", "Unlimited conversions", "Works on all devices", "POPIA compliant"];
+  const features = ["100% Private - No uploads to servers", "Lightning fast processing", "No file size limits", "Unlimited conversions", "Works on all devices", "All Features included"];
   return <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="border-b border-gray-200 sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
