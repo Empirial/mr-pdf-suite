@@ -3,50 +3,34 @@ import { ArrowRight, Combine, Camera, PenTool, FileImage, Check } from "lucide-r
 import logo from "@/assets/mr-pdf-logo.jpg";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
-
 const Landing = () => {
-  const tools = [
-    {
-      title: "Merge PDFs",
-      description: "Combine multiple PDF files into one document instantly",
-      icon: Combine,
-      href: "/tools",
-      color: "bg-[#B8935C]",
-    },
-    {
-      title: "Camera Scanner",
-      description: "Capture photos and convert them to PDF documents",
-      icon: Camera,
-      href: "/scan",
-      color: "bg-[#2C2C2C]",
-    },
-    {
-      title: "Sign PDF",
-      description: "Add your digital signature to any PDF file",
-      icon: PenTool,
-      href: "/sign",
-      color: "bg-[#B8935C]",
-    },
-    {
-      title: "File Converter",
-      description: "Convert images and text files to PDF format",
-      icon: FileImage,
-      href: "/convert",
-      color: "bg-[#2C2C2C]",
-    },
-  ];
-
-  const features = [
-    "100% Private - No uploads to servers",
-    "Lightning fast processing",
-    "No file size limits",
-    "Unlimited conversions",
-    "Works on all devices",
-    "POPIA compliant",
-  ];
-
-  return (
-    <div className="min-h-screen bg-white">
+  const tools = [{
+    title: "Merge PDFs",
+    description: "Combine multiple PDF files into one document instantly",
+    icon: Combine,
+    href: "/tools",
+    color: "bg-[#B8935C]"
+  }, {
+    title: "Camera Scanner",
+    description: "Capture photos and convert them to PDF documents",
+    icon: Camera,
+    href: "/scan",
+    color: "bg-[#2C2C2C]"
+  }, {
+    title: "Sign PDF",
+    description: "Add your digital signature to any PDF file",
+    icon: PenTool,
+    href: "/sign",
+    color: "bg-[#B8935C]"
+  }, {
+    title: "File Converter",
+    description: "Convert images and text files to PDF format",
+    icon: FileImage,
+    href: "/convert",
+    color: "bg-[#2C2C2C]"
+  }];
+  const features = ["100% Private - No uploads to servers", "Lightning fast processing", "No file size limits", "Unlimited conversions", "Works on all devices", "POPIA compliant"];
+  return <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="border-b border-gray-200 sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
@@ -90,10 +74,7 @@ const Landing = () => {
               </p>
 
               <Link to="/tools">
-                <Button
-                  size="lg"
-                  className="bg-[#B8935C] hover:bg-[#A07D4A] text-white font-semibold px-8 h-14 text-lg group shadow-lg"
-                >
+                <Button size="lg" className="bg-[#B8935C] hover:bg-[#A07D4A] text-white font-semibold px-8 h-14 text-lg group shadow-lg">
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -123,17 +104,11 @@ const Landing = () => {
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
-                {tools.map((tool, index) => (
-                  <Link
-                    key={tool.href}
-                    to={tool.href}
-                    className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 transition-all duration-300 hover:shadow-xl hover:border-[#B8935C]/30"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
+                {tools.map((tool, index) => <Link key={tool.href} to={tool.href} className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 transition-all duration-300 hover:shadow-xl hover:border-[#B8935C]/30" style={{
+                animationDelay: `${index * 100}ms`
+              }}>
                     <div className="relative z-10">
-                      <div
-                        className={`inline-flex p-4 rounded-xl ${tool.color} text-white mb-6 group-hover:scale-110 transition-transform`}
-                      >
+                      <div className={`inline-flex p-4 rounded-xl ${tool.color} text-white mb-6 group-hover:scale-110 transition-transform`}>
                         <tool.icon className="h-7 w-7" />
                       </div>
                       <h3 className="text-2xl font-bold text-[#2C2C2C] mb-3 group-hover:text-[#B8935C] transition-colors">
@@ -147,8 +122,7 @@ const Landing = () => {
                         <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
-                  </Link>
-                ))}
+                  </Link>)}
               </div>
             </div>
           </div>
@@ -182,7 +156,7 @@ const Landing = () => {
                   <div className="text-center mb-8">
                     <h3 className="text-2xl font-bold text-[#2C2C2C] mb-4">Pro Plan</h3>
                     <div className="mb-4">
-                      <span className="text-5xl font-bold text-[#2C2C2C]">R3</span>
+                      <span className="text-5xl font-bold text-[#2C2C2C]">$3</span>
                       <span className="text-gray-600 ml-2">/month</span>
                     </div>
                     <p className="text-gray-600">
@@ -191,19 +165,15 @@ const Landing = () => {
                   </div>
 
                   <ul className="space-y-4 mb-8">
-                    {features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3">
+                    {features.map(feature => <li key={feature} className="flex items-start gap-3">
                         <div className="h-6 w-6 rounded-full bg-[#B8935C]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <Check className="h-4 w-4 text-[#B8935C]" />
                         </div>
                         <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
+                      </li>)}
                   </ul>
 
-                  <Button
-                    className="w-full bg-[#B8935C] hover:bg-[#A07D4A] text-white font-semibold h-12 text-lg shadow-lg"
-                  >
+                  <Button className="w-full bg-[#B8935C] hover:bg-[#A07D4A] text-white font-semibold h-12 text-lg shadow-lg">
                     Start Free Trial
                   </Button>
 
@@ -312,8 +282,6 @@ const Landing = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
