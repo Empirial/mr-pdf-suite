@@ -230,32 +230,7 @@ const Landing = () => {
               {/* Contact */}
               <div>
                 <h4 className="font-semibold mb-4 text-[#B8935C]">Contact</h4>
-                <ul className="space-y-2">
-                  <li className="text-gray-400 flex items-center gap-2">
-                    <span>📱</span>
-                    <a href="tel:+27079-862-9246" className="hover:text-white transition-colors">
-                      (+27)79-862-9246
-                    </a>
-                  </li>
-                  <li className="text-gray-400 flex items-center gap-2">
-                    <span>📘</span>
-                    <a href="#" className="hover:text-white transition-colors">
-                      @Empirial Designs
-                    </a>
-                  </li>
-                  <li className="text-gray-400 flex items-center gap-2">
-                    <span>📷</span>
-                    <a href="#" className="hover:text-white transition-colors">
-                      @Empirial Designs
-                    </a>
-                  </li>
-                  <li className="text-gray-400 flex items-center gap-2">
-                    <span>💼</span>
-                    <a href="#" className="hover:text-white transition-colors">
-                      @Lufuno Mphela
-                    </a>
-                  </li>
-                </ul>
+                
               </div>
             </div>
 
