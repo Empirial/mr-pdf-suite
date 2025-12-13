@@ -55,23 +55,14 @@ const Landing = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#B8935C]/10 border border-[#B8935C]/20 mb-8">
-                <div className="h-2 w-2 rounded-full bg-[#B8935C] animate-pulse" />
-                <span className="text-sm font-medium text-[#2C2C2C]">
-                  100% Private • No Upload Required
-                </span>
-              </div>
+              
 
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-[#2C2C2C] mb-6 leading-tight">
-                Professional PDF Tools
-                <br />
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-[#2C2C2C] mb-6 leading-tight">The PDF Toolkit In
+Made Simple<br />
                 <span className="text-[#B8935C]">Made Simple</span>
               </h1>
 
-              <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-10">
-                Merge, sign, and convert PDFs instantly in your browser. No uploads, no signups, 
-                no compromises. Trusted by South African professionals.
-              </p>
+              <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-10">Merge, sign, and convert PDFs instantly in your browser.</p>
 
               <Link to="/tools">
                 <Button size="lg" className="bg-[#B8935C] hover:bg-[#A07D4A] text-white font-semibold px-8 h-14 text-lg group shadow-lg">
@@ -80,7 +71,7 @@ const Landing = () => {
                 </Button>
               </Link>
 
-              <p className="text-sm text-gray-500 mt-6">Get A 3 day</p>
+              <p className="text-sm text-gray-500 mt-6">3 Days Free Trial - Unlimited Access</p>
             </div>
           </div>
         </section>
