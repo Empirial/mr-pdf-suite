@@ -80,9 +80,7 @@ const Landing = () => {
                 </Button>
               </Link>
 
-              <p className="text-sm text-gray-500 mt-6">
-                No credit card required • Free forever
-              </p>
+              <p className="text-sm text-gray-500 mt-6">Get A 3 day</p>
             </div>
           </div>
         </section>
