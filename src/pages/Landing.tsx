@@ -1,61 +1,82 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Combine, Camera, PenTool, FileImage, Check } from "lucide-react";
+import { 
+  Combine, Camera, PenTool, FileImage, Check, 
+  FileText, Scissors, Minimize2, FileType, 
+  Presentation, Table, FileSpreadsheet, Image, 
+  Edit, RotateCw, Stamp, Lock, Unlock, 
+  Shield, SortAsc, FileCheck, Wrench, 
+  Hash, ScanLine, Search, GitCompare, 
+  EyeOff, Crop, LucideIcon
+} from "lucide-react";
 import logo from "@/assets/mr-pdf-logo.jpg";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+
+interface Tool {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  href: string;
+  color: string;
+  category: string;
+  isNew?: boolean;
+}
 
 const Landing = () => {
-  const [activeSlide, setActiveSlide] = useState(0);
-  const toolsContainerRef = useRef<HTMLDivElement>(null);
-  const tools = [{
-    title: "Merge PDFs",
-    description: "Combine multiple PDF files into one document instantly",
-    icon: Combine,
-    href: "/tools",
-    color: "bg-[#B8935C]"
-  }, {
-    title: "Camera Scanner",
-    description: "Capture photos and convert them to PDF documents",
-    icon: Camera,
-    href: "/scan",
-    color: "bg-[#2C2C2C]"
-  }, {
-    title: "Sign PDF",
-    description: "Add your digital signature to any PDF file",
-    icon: PenTool,
-    href: "/sign",
-    color: "bg-[#B8935C]"
-  }, {
-    title: "File Converter",
-    description: "Convert images and text files to PDF format",
-    icon: FileImage,
-    href: "/convert",
-    color: "bg-[#2C2C2C]"
-  }];
+  const [activeFilter, setActiveFilter] = useState("All");
+  
+  const filters = ["All", "Organize PDF", "Optimize PDF", "Convert PDF", "Edit PDF", "PDF Security"];
+  
+  const tools: Tool[] = [
+    // Organize PDF
+    { title: "Merge PDF", description: "Combine PDFs in the order you want with the easiest PDF merger available.", icon: Combine, href: "/tools", color: "#B8935C", category: "Organize PDF" },
+    { title: "Split PDF", description: "Separate one page or a whole set for easy conversion into independent PDF files.", icon: Scissors, href: "/tools", color: "#7C3AED", category: "Organize PDF" },
+    { title: "Organize PDF", description: "Sort pages of your PDF however you like. Delete PDF pages or add PDF pages.", icon: SortAsc, href: "/tools", color: "#059669", category: "Organize PDF" },
+    { title: "Rotate PDF", description: "Rotate your PDFs the way you need them. You can even rotate multiple PDFs at once!", icon: RotateCw, href: "/tools", color: "#DC2626", category: "Organize PDF" },
+    
+    // Optimize PDF
+    { title: "Compress PDF", description: "Reduce file size while optimizing for maximal PDF quality.", icon: Minimize2, href: "/tools", color: "#059669", category: "Optimize PDF" },
+    { title: "Repair PDF", description: "Repair a damaged PDF and recover data from corrupt PDF. Fix PDF files with our Repair tool.", icon: Wrench, href: "/tools", color: "#7C3AED", category: "Optimize PDF" },
+    
+    // Convert PDF
+    { title: "PDF to Word", description: "Easily convert your PDF files into easy to edit DOC and DOCX documents.", icon: FileType, href: "/convert", color: "#2563EB", category: "Convert PDF" },
+    { title: "PDF to PowerPoint", description: "Turn your PDF files into easy to edit PPT and PPTX slideshows.", icon: Presentation, href: "/convert", color: "#DC2626", category: "Convert PDF" },
+    { title: "PDF to Excel", description: "Pull data straight from PDFs into Excel spreadsheets in a few short seconds.", icon: Table, href: "/convert", color: "#059669", category: "Convert PDF" },
+    { title: "Word to PDF", description: "Make DOC and DOCX files easy to read by converting them to PDF.", icon: FileText, href: "/convert", color: "#2563EB", category: "Convert PDF" },
+    { title: "PowerPoint to PDF", description: "Make PPT and PPTX slideshows easy to view by converting them to PDF.", icon: Presentation, href: "/convert", color: "#DC2626", category: "Convert PDF" },
+    { title: "Excel to PDF", description: "Make EXCEL spreadsheets easy to read by converting them to PDF.", icon: FileSpreadsheet, href: "/convert", color: "#059669", category: "Convert PDF" },
+    { title: "PDF to JPG", description: "Convert each PDF page into a JPG or extract all images contained in a PDF.", icon: Image, href: "/convert", color: "#F59E0B", category: "Convert PDF" },
+    { title: "JPG to PDF", description: "Convert JPG images to PDF in seconds. Easily adjust orientation and margins.", icon: FileImage, href: "/convert", color: "#F59E0B", category: "Convert PDF" },
+    
+    // Edit PDF
+    { title: "Edit PDF", description: "Add text, images, shapes or freehand annotations to a PDF document.", icon: Edit, href: "/tools", color: "#7C3AED", category: "Edit PDF", isNew: true },
+    { title: "Sign PDF", description: "Sign yourself or request electronic signatures from others.", icon: PenTool, href: "/sign", color: "#B8935C", category: "Edit PDF" },
+    { title: "Watermark", description: "Stamp an image or text over your PDF in seconds. Choose the typography, transparency and position.", icon: Stamp, href: "/tools", color: "#6366F1", category: "Edit PDF" },
+    { title: "Page Numbers", description: "Add page numbers into PDFs with ease. Choose your positions, dimensions, typography.", icon: Hash, href: "/tools", color: "#8B5CF6", category: "Edit PDF" },
+    { title: "Scan to PDF", description: "Capture document scans from your mobile device and send them instantly to your browser.", icon: ScanLine, href: "/scan", color: "#DC2626", category: "Edit PDF" },
+    { title: "OCR PDF", description: "Easily convert scanned PDF into searchable and selectable documents.", icon: Search, href: "/tools", color: "#2563EB", category: "Edit PDF" },
+    { title: "Redact PDF", description: "Redact text and graphics to permanently remove sensitive information from a PDF.", icon: EyeOff, href: "/tools", color: "#DC2626", category: "Edit PDF", isNew: true },
+    { title: "Crop PDF", description: "Crop margins of PDF documents or select specific areas, then apply the changes.", icon: Crop, href: "/tools", color: "#F59E0B", category: "Edit PDF", isNew: true },
+    
+    // PDF Security
+    { title: "Unlock PDF", description: "Remove PDF password security, giving you the freedom to use your PDFs as you want.", icon: Unlock, href: "/tools", color: "#F59E0B", category: "PDF Security" },
+    { title: "Protect PDF", description: "Protect PDF files with a password. Encrypt PDF documents to prevent unauthorized access.", icon: Lock, href: "/tools", color: "#059669", category: "PDF Security" },
+    { title: "PDF to PDF/A", description: "Transform your PDF to PDF/A, the ISO-standardized version of PDF for long-term archiving.", icon: FileCheck, href: "/tools", color: "#6366F1", category: "PDF Security" },
+    { title: "Compare PDF", description: "Show a side-by-side document comparison and easily spot changes between different file versions.", icon: GitCompare, href: "/tools", color: "#8B5CF6", category: "PDF Security", isNew: true },
+  ];
+
+  const filteredTools = activeFilter === "All" 
+    ? tools 
+    : tools.filter(tool => tool.category === activeFilter);
+
   const features = ["100% Private - No uploads to servers", "Lightning fast processing", "No file size limits", "Unlimited conversions", "Works on all devices", "All Features included"];
-
-  useEffect(() => {
-    const container = toolsContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const scrollTop = container.scrollTop;
-      const slideHeight = window.innerHeight;
-      const newActiveSlide = Math.round(scrollTop / slideHeight);
-      setActiveSlide(newActiveSlide);
-    };
-
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="border-b border-gray-200 sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
               <img src={logo} alt="MR PDF Logo" className="h-12 w-auto" />
               <div>
@@ -63,137 +84,76 @@ const Landing = () => {
                 <p className="text-xs text-gray-600">Professional PDF Suite</p>
               </div>
             </Link>
-
             <ThemeToggle />
           </div>
         </div>
       </header>
 
       <main>
-        {/* Hero Section */}
-        <section className="py-20 md:py-32 bg-gradient-to-b from-white to-gray-50">
+        {/* Tools Section */}
+        <section className="py-16 md:py-24">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              {/* Badge */}
-              
-
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-[#2C2C2C] mb-6 leading-tight">The PDF Toolkit In
-Made Simple<br />
-                <span className="text-[#B8935C]">Made Simple</span>
+            {/* Header */}
+            <div className="max-w-4xl mx-auto text-center mb-12">
+              <h1 className="text-3xl md:text-5xl font-bold text-[#2C2C2C] mb-6">
+                Every tool you need to work with PDFs in one place
               </h1>
+              <p className="text-lg text-gray-600">
+                Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! 
+                Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.
+              </p>
+            </div>
 
-              <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-10">Merge, sign, and convert PDFs instantly in your browser.</p>
+            {/* Filter Tabs */}
+            <div className="flex flex-wrap justify-center gap-2 mb-12">
+              {filters.map(filter => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                    activeFilter === filter
+                      ? "bg-[#2C2C2C] text-white shadow-lg"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
 
-              <Link to="/tools">
-                <Button size="lg" className="bg-[#B8935C] hover:bg-[#A07D4A] text-white font-semibold px-8 h-14 text-lg group shadow-lg">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-
-              <p className="text-sm text-gray-500 mt-6">3 Days Free Trial - Unlimited Access</p>
+            {/* Tools Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {filteredTools.map((tool, index) => (
+                <Link
+                  key={`${tool.title}-${index}`}
+                  to={tool.href}
+                  className="group relative bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl hover:border-gray-300 transition-all duration-300 hover:-translate-y-1"
+                >
+                  {tool.isNew && (
+                    <span className="absolute top-4 right-4 bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                      New!
+                    </span>
+                  )}
+                  
+                  <div 
+                    className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
+                    style={{ backgroundColor: `${tool.color}15` }}
+                  >
+                    <tool.icon className="h-6 w-6" style={{ color: tool.color }} />
+                  </div>
+                  
+                  <h3 className="font-semibold text-[#2C2C2C] mb-2 group-hover:text-[#B8935C] transition-colors">
+                    {tool.title}
+                  </h3>
+                  
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {tool.description}
+                  </p>
+                </Link>
+              ))}
             </div>
           </div>
         </section>
-
-        {/* Full-Screen Tools Section */}
-        <div 
-          ref={toolsContainerRef}
-          className="h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth"
-          style={{ scrollSnapType: 'y mandatory' }}
-        >
-          {tools.map((tool, index) => (
-            <section
-              key={tool.href}
-              className="h-screen w-full flex items-center justify-center snap-start snap-always relative overflow-hidden"
-              style={{ 
-                scrollSnapAlign: 'start',
-                background: index % 2 === 0 
-                  ? 'linear-gradient(135deg, #FAFAFA 0%, #F5F0E8 100%)' 
-                  : 'linear-gradient(135deg, #2C2C2C 0%, #1a1a1a 100%)'
-              }}
-            >
-              {/* Background decoration */}
-              <div 
-                className="absolute inset-0 opacity-5"
-                style={{
-                  backgroundImage: `radial-gradient(circle at 30% 70%, ${index % 2 === 0 ? '#B8935C' : '#fff'} 0%, transparent 50%)`
-                }}
-              />
-              
-              {/* Navigation dots */}
-              <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3">
-                {tools.map((_, dotIndex) => (
-                  <button
-                    key={dotIndex}
-                    onClick={() => {
-                      const container = toolsContainerRef.current;
-                      if (container) {
-                        container.scrollTo({
-                          top: dotIndex * window.innerHeight,
-                          behavior: 'smooth'
-                        });
-                      }
-                    }}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      activeSlide === dotIndex 
-                        ? 'bg-[#B8935C] scale-125' 
-                        : index % 2 === 0 ? 'bg-gray-400 hover:bg-gray-600' : 'bg-gray-500 hover:bg-gray-300'
-                    }`}
-                    aria-label={`Go to slide ${dotIndex + 1}`}
-                  />
-                ))}
-              </div>
-
-              {/* Tool content */}
-              <div className="container mx-auto px-4 relative z-10">
-                <div className="max-w-4xl mx-auto text-center">
-                  <div 
-                    className={`inline-flex p-8 rounded-3xl ${tool.color} text-white mb-10 shadow-2xl transform transition-transform duration-500 hover:scale-110`}
-                  >
-                    <tool.icon className="h-16 w-16 md:h-24 md:w-24" />
-                  </div>
-                  
-                  <h2 className={`text-5xl md:text-7xl lg:text-8xl font-bold mb-8 ${
-                    index % 2 === 0 ? 'text-[#2C2C2C]' : 'text-white'
-                  }`}>
-                    {tool.title}
-                  </h2>
-                  
-                  <p className={`text-xl md:text-2xl mb-12 max-w-2xl mx-auto ${
-                    index % 2 === 0 ? 'text-gray-600' : 'text-gray-300'
-                  }`}>
-                    {tool.description}
-                  </p>
-                  
-                  <Link to={tool.href}>
-                    <Button 
-                      size="lg" 
-                      className={`${
-                        index % 2 === 0 
-                          ? 'bg-[#B8935C] hover:bg-[#A07D4A] text-white' 
-                          : 'bg-white hover:bg-gray-100 text-[#2C2C2C]'
-                      } font-semibold px-12 h-16 text-xl group shadow-xl`}
-                    >
-                      Try {tool.title}
-                      <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform" />
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Scroll indicator for first slide */}
-              {index === 0 && (
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-                  <span className="text-sm text-gray-500">Scroll to explore</span>
-                  <div className="w-6 h-10 rounded-full border-2 border-gray-400 flex items-start justify-center p-2">
-                    <div className="w-1.5 h-3 bg-gray-400 rounded-full animate-pulse" />
-                  </div>
-                </div>
-              )}
-            </section>
-          ))}
-        </div>
 
         {/* Pricing Section */}
         <section className="py-20 bg-gradient-to-b from-white to-gray-50">
