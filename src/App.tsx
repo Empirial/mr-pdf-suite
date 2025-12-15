@@ -8,6 +8,14 @@ import Index from "./pages/Index";
 import CameraScanner from "./pages/CameraScanner";
 import SignPdf from "./pages/SignPdf";
 import Converter from "./pages/Converter";
+import Auth from "./pages/Auth";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import SplitPdf from "./pages/SplitPdf";
+import RotatePdf from "./pages/RotatePdf";
+import CompressPdf from "./pages/CompressPdf";
+import WatermarkPdf from "./pages/WatermarkPdf";
+import PageNumbers from "./pages/PageNumbers";
+import ProtectPdf from "./pages/ProtectPdf";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +32,14 @@ const App = () => (
           <Route path="/scan" element={<CameraScanner />} />
           <Route path="/sign" element={<SignPdf />} />
           <Route path="/convert" element={<Converter />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/split" element={<SplitPdf />} />
+          <Route path="/rotate" element={<RotatePdf />} />
+          <Route path="/compress" element={<CompressPdf />} />
+          <Route path="/watermark" element={<WatermarkPdf />} />
+          <Route path="/page-numbers" element={<PageNumbers />} />
+          <Route path="/protect" element={<ProtectPdf />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
