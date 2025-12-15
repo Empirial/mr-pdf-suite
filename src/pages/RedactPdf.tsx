@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import UploadZone from "@/components/UploadZone";
 import { useToast } from "@/hooks/use-toast";
 import { PDFDocument, rgb } from "pdf-lib";
-import * as pdfjsLib from "pdfjs-dist";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Type for dynamically imported library
+type PdfjsLibType = typeof import("pdfjs-dist");
 
 interface RedactionArea {
   page: number;
@@ -29,30 +29,43 @@ const RedactPdf = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawStart, setDrawStart] = useState({ x: 0, y: 0 });
   const [currentRect, setCurrentRect] = useState<RedactionArea | null>(null);
+  const [pdfjsLib, setPdfjsLib] = useState<PdfjsLibType | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  // Dynamically load pdfjs-dist when needed
+  const loadPdfjs = async (): Promise<PdfjsLibType> => {
+    if (pdfjsLib) return pdfjsLib;
+    const lib = await import("pdfjs-dist") as PdfjsLibType;
+    lib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${lib.version}/pdf.worker.min.js`;
+    setPdfjsLib(lib);
+    return lib;
+  };
+
   const handleFilesSelected = useCallback(async (files: File[]) => {
     if (files.length > 0) {
+      const lib = await loadPdfjs();
       setFile(files[0]);
       setRedactions([]);
       const arrayBuffer = await files[0].arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pdf = await lib.getDocument({ data: arrayBuffer }).promise;
       setPageCount(pdf.numPages);
       setCurrentPage(1);
-      renderPage(arrayBuffer, 1);
+      renderPage(lib, arrayBuffer, 1);
     }
   }, []);
 
-  const renderPage = async (arrayBuffer: ArrayBuffer, pageNum: number) => {
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const renderPage = async (lib: PdfjsLibType, arrayBuffer: ArrayBuffer, pageNum: number) => {
+    const pdf = await lib.getDocument({ data: arrayBuffer }).promise;
     const page = await pdf.getPage(pageNum);
     const viewport = page.getViewport({ scale: 1.5 });
 
     setPageDimensions({ width: viewport.width, height: viewport.height });
 
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d")!;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
@@ -61,10 +74,10 @@ const RedactPdf = () => {
   };
 
   useEffect(() => {
-    if (file) {
-      file.arrayBuffer().then((buffer) => renderPage(buffer, currentPage));
+    if (file && pdfjsLib) {
+      file.arrayBuffer().then((buffer) => renderPage(pdfjsLib, buffer, currentPage));
     }
-  }, [currentPage, file]);
+  }, [currentPage, file, pdfjsLib]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!canvasRef.current) return;
@@ -149,9 +162,10 @@ const RedactPdf = () => {
       URL.revokeObjectURL(url);
 
       toast({ title: "Success", description: "PDF redacted successfully!" });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Redaction error:", error);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setProcessing(false);
     }

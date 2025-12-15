@@ -4,12 +4,11 @@ import { ArrowLeft, Search, Download, Loader2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UploadZone from "@/components/UploadZone";
 import { useToast } from "@/hooks/use-toast";
-import Tesseract from "tesseract.js";
-import * as pdfjsLib from "pdfjs-dist";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
-// Set up PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Types for dynamically imported libraries
+type TesseractType = typeof import("tesseract.js");
+type PdfjsLibType = typeof import("pdfjs-dist");
 
 const OcrPdf = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -35,6 +34,15 @@ const OcrPdf = () => {
     setExtractedText("");
 
     try {
+      // Dynamically import heavy libraries
+      const [Tesseract, pdfjsLib] = await Promise.all([
+        import("tesseract.js") as Promise<TesseractType>,
+        import("pdfjs-dist") as Promise<PdfjsLibType>,
+      ]);
+
+      // Set up PDF.js worker
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const numPages = pdf.numPages;
@@ -48,14 +56,16 @@ const OcrPdf = () => {
         const viewport = page.getViewport({ scale: 2 }); // Higher scale for better OCR
 
         const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d")!;
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Could not get canvas context");
+        
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
         await page.render({ canvasContext: context, viewport, canvas }).promise;
 
         const result = await Tesseract.recognize(canvas, "eng", {
-          logger: (m) => {
+          logger: (m: { status: string; progress: number }) => {
             if (m.status === "recognizing text") {
               const pageProgress = ((i - 1) + m.progress) / numPages * 100;
               setProgress(pageProgress);
@@ -70,9 +80,10 @@ const OcrPdf = () => {
       setProgress(100);
       setProgressText("OCR complete!");
       toast({ title: "Success", description: "Text extracted successfully!" });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("OCR error:", error);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setProcessing(false);
     }
@@ -134,8 +145,9 @@ const OcrPdf = () => {
       a.download = file.name.replace(".pdf", "_searchable.pdf");
       a.click();
       URL.revokeObjectURL(url);
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     }
   };
 

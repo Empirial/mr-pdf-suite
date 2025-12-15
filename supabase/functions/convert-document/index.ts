@@ -1,11 +1,58 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// Secure CORS helper
+const getAllowedOrigin = (requestOrigin: string | null): string | null => {
+  const allowedOrigin = Deno.env.get('ALLOWED_ORIGIN');
+  
+  if (!requestOrigin) return null;
+  
+  // Allow localhost for development
+  if (requestOrigin.includes('localhost') || requestOrigin.includes('127.0.0.1')) {
+    return requestOrigin;
+  }
+  
+  // Check against configured allowed origin
+  if (allowedOrigin && requestOrigin === allowedOrigin) {
+    return requestOrigin;
+  }
+  
+  // Also allow Lovable preview URLs
+  if (requestOrigin.includes('.lovableproject.com') || requestOrigin.includes('.lovable.app')) {
+    return requestOrigin;
+  }
+  
+  return null;
+};
+
+const getCorsHeaders = (origin: string | null): Record<string, string> => {
+  const allowedOrigin = getAllowedOrigin(origin);
+  
+  if (!allowedOrigin) {
+    return {
+      'Access-Control-Allow-Origin': '',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    };
+  }
+  
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
 };
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+  
+  // Block requests from disallowed origins
+  if (!corsHeaders['Access-Control-Allow-Origin']) {
+    console.error('CORS blocked: origin not allowed', origin);
+    return new Response(
+      JSON.stringify({ error: 'Origin not allowed' }),
+      { status: 403, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -45,13 +92,14 @@ serve(async (req) => {
         gotenbergFormData.append('files', file, 'index.html');
         break;
 
-      case 'url-to-pdf':
+      case 'url-to-pdf': {
         // URL to PDF
         const url = formData.get('url') as string;
         if (!url) throw new Error('URL required for url-to-pdf conversion');
         gotenbergEndpoint = `${GOTENBERG_URL}/forms/chromium/convert/url`;
         gotenbergFormData.append('url', url);
         break;
+      }
 
       case 'pdf-to-pdfa':
         // PDF to PDF/A
