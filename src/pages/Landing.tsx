@@ -57,18 +57,18 @@ const Landing = () => {
     // Optimize PDF
     { title: "Compress PDF", description: "Reduce file size while optimizing for maximal PDF quality.", icon: Minimize2, href: "/compress", color: "#059669", category: "Optimize PDF" },
     { title: "Repair PDF", description: "Repair a damaged PDF and recover data from corrupt PDF.", icon: Wrench, href: "#", color: "#7C3AED", category: "Optimize PDF", comingSoon: true },
-    { title: "OCR PDF", description: "Easily convert scanned PDF into searchable and selectable documents.", icon: Search, href: "#", color: "#2563EB", category: "Optimize PDF", comingSoon: true },
+    { title: "OCR PDF", description: "Easily convert scanned PDF into searchable and selectable documents.", icon: Search, href: "/ocr", color: "#2563EB", category: "Optimize PDF" },
     
-    // Convert PDF - Coming Soon (requires server-side)
-    { title: "PDF to Word", description: "Easily convert your PDF files into easy to edit DOC and DOCX documents.", icon: FileType, href: "#", color: "#2563EB", category: "Convert PDF", comingSoon: true },
-    { title: "PDF to PowerPoint", description: "Turn your PDF files into easy to edit PPT and PPTX slideshows.", icon: Presentation, href: "#", color: "#DC2626", category: "Convert PDF", comingSoon: true },
-    { title: "PDF to Excel", description: "Pull data straight from PDFs into Excel spreadsheets.", icon: Table, href: "#", color: "#059669", category: "Convert PDF", comingSoon: true },
-    { title: "Word to PDF", description: "Make DOC and DOCX files easy to read by converting them to PDF.", icon: FileText, href: "#", color: "#2563EB", category: "Convert PDF", comingSoon: true },
-    { title: "PowerPoint to PDF", description: "Make PPT and PPTX slideshows easy to view by converting them to PDF.", icon: Presentation, href: "#", color: "#DC2626", category: "Convert PDF", comingSoon: true },
-    { title: "Excel to PDF", description: "Make EXCEL spreadsheets easy to read by converting them to PDF.", icon: FileSpreadsheet, href: "#", color: "#059669", category: "Convert PDF", comingSoon: true },
-    { title: "PDF to JPG", description: "Convert each PDF page into a JPG or extract all images contained in a PDF.", icon: Image, href: "#", color: "#F59E0B", category: "Convert PDF", comingSoon: true },
+    // Convert PDF
+    { title: "PDF to Word", description: "Easily convert your PDF files into easy to edit DOC and DOCX documents.", icon: FileType, href: "/pdf-to-word", color: "#2563EB", category: "Convert PDF" },
+    { title: "PDF to PowerPoint", description: "Turn your PDF files into easy to edit PPT and PPTX slideshows.", icon: Presentation, href: "/pdf-to-powerpoint", color: "#DC2626", category: "Convert PDF" },
+    { title: "PDF to Excel", description: "Pull data straight from PDFs into Excel spreadsheets.", icon: Table, href: "/pdf-to-excel", color: "#059669", category: "Convert PDF" },
+    { title: "Word to PDF", description: "Make DOC and DOCX files easy to read by converting them to PDF.", icon: FileText, href: "/word-to-pdf", color: "#2563EB", category: "Convert PDF" },
+    { title: "PowerPoint to PDF", description: "Make PPT and PPTX slideshows easy to view by converting them to PDF.", icon: Presentation, href: "/powerpoint-to-pdf", color: "#DC2626", category: "Convert PDF" },
+    { title: "Excel to PDF", description: "Make EXCEL spreadsheets easy to read by converting them to PDF.", icon: FileSpreadsheet, href: "/excel-to-pdf", color: "#059669", category: "Convert PDF" },
+    { title: "PDF to JPG", description: "Convert each PDF page into a JPG or extract all images contained in a PDF.", icon: Image, href: "/pdf-to-jpg", color: "#F59E0B", category: "Convert PDF" },
     { title: "JPG to PDF", description: "Convert JPG images to PDF in seconds. Easily adjust orientation and margins.", icon: FileImage, href: "/convert", color: "#F59E0B", category: "Convert PDF" },
-    { title: "HTML to PDF", description: "Convert webpages in HTML to PDF.", icon: Globe, href: "#", color: "#6366F1", category: "Convert PDF", comingSoon: true },
+    { title: "HTML to PDF", description: "Convert webpages in HTML to PDF.", icon: Globe, href: "/html-to-pdf", color: "#6366F1", category: "Convert PDF" },
     
     // Edit PDF
     { title: "Edit PDF", description: "Add text, images, shapes or freehand annotations to a PDF document.", icon: Edit, href: "#", color: "#7C3AED", category: "Edit PDF", comingSoon: true },
@@ -76,13 +76,13 @@ const Landing = () => {
     { title: "Watermark", description: "Stamp an image or text over your PDF in seconds.", icon: Stamp, href: "/watermark", color: "#6366F1", category: "Edit PDF" },
     { title: "Page Numbers", description: "Add page numbers into PDFs with ease.", icon: Hash, href: "/page-numbers", color: "#8B5CF6", category: "Edit PDF" },
     { title: "Scan to PDF", description: "Capture document scans from your mobile device and send them instantly.", icon: ScanLine, href: "/scan", color: "#DC2626", category: "Edit PDF" },
-    { title: "Redact PDF", description: "Redact text and graphics to permanently remove sensitive information.", icon: EyeOff, href: "#", color: "#DC2626", category: "Edit PDF", comingSoon: true },
-    { title: "Crop PDF", description: "Crop margins of PDF documents or select specific areas.", icon: Crop, href: "#", color: "#F59E0B", category: "Edit PDF", comingSoon: true },
+    { title: "Redact PDF", description: "Redact text and graphics to permanently remove sensitive information.", icon: EyeOff, href: "/redact", color: "#DC2626", category: "Edit PDF" },
+    { title: "Crop PDF", description: "Crop margins of PDF documents or select specific areas.", icon: Crop, href: "/crop", color: "#F59E0B", category: "Edit PDF" },
     
     // PDF Security
     { title: "Unlock PDF", description: "Remove PDF password security, giving you the freedom to use your PDFs.", icon: Unlock, href: "#", color: "#F59E0B", category: "PDF Security", comingSoon: true },
     { title: "Protect PDF", description: "Protect PDF files with a password.", icon: Lock, href: "/protect", color: "#059669", category: "PDF Security" },
-    { title: "PDF to PDF/A", description: "Transform your PDF to PDF/A for long-term archiving.", icon: FileCheck, href: "#", color: "#6366F1", category: "PDF Security", comingSoon: true },
+    { title: "PDF to PDF/A", description: "Transform your PDF to PDF/A for long-term archiving.", icon: FileCheck, href: "/pdf-to-pdfa", color: "#6366F1", category: "PDF Security" },
     { title: "Compare PDF", description: "Show a side-by-side document comparison.", icon: GitCompare, href: "#", color: "#8B5CF6", category: "PDF Security", comingSoon: true },
 
     // Workflows

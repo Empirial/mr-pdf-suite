@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.yoco-webhook]
 verify_jwt = false
+
+[functions.convert-document]
+verify_jwt = false
