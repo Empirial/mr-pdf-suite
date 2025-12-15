@@ -4,10 +4,10 @@ import { ArrowLeft, Image, Download, Loader2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UploadZone from "@/components/UploadZone";
 import { useToast } from "@/hooks/use-toast";
-import * as pdfjsLib from "pdfjs-dist";
 import JSZip from "jszip";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Type for dynamically imported library
+type PdfjsLibType = typeof import("pdfjs-dist");
 
 const PdfToJpg = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -32,6 +32,10 @@ const PdfToJpg = () => {
     setImages([]);
 
     try {
+      // Dynamically import pdfjs-dist
+      const pdfjsLib = await import("pdfjs-dist") as PdfjsLibType;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const numPages = pdf.numPages;
@@ -44,7 +48,9 @@ const PdfToJpg = () => {
         const viewport = page.getViewport({ scale: 2 });
 
         const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d")!;
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Could not get canvas context");
+        
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
@@ -56,9 +62,10 @@ const PdfToJpg = () => {
 
       setImages(newImages);
       toast({ title: "Success", description: `Converted ${numPages} pages to images!` });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Conversion error:", error);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setProcessing(false);
     }

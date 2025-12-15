@@ -1,12 +1,64 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+// Server-side pricing - NEVER trust client for amounts
+const PLANS: Record<string, { amount: number; name: string }> = {
+  'pro': { amount: 300, name: 'Pro Plan' }, // R3.00 = 300 cents
+};
+
+// Secure CORS helper
+const getAllowedOrigin = (requestOrigin: string | null): string | null => {
+  const allowedOrigin = Deno.env.get('ALLOWED_ORIGIN');
+  
+  if (!requestOrigin) return null;
+  
+  // Allow localhost for development
+  if (requestOrigin.includes('localhost') || requestOrigin.includes('127.0.0.1')) {
+    return requestOrigin;
+  }
+  
+  // Check against configured allowed origin
+  if (allowedOrigin && requestOrigin === allowedOrigin) {
+    return requestOrigin;
+  }
+  
+  // Also allow Lovable preview URLs
+  if (requestOrigin.includes('.lovableproject.com') || requestOrigin.includes('.lovable.app')) {
+    return requestOrigin;
+  }
+  
+  return null;
+};
+
+const getCorsHeaders = (origin: string | null): Record<string, string> => {
+  const allowedOrigin = getAllowedOrigin(origin);
+  
+  if (!allowedOrigin) {
+    return {
+      'Access-Control-Allow-Origin': '',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    };
+  }
+  
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
 };
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+  
+  // Block requests from disallowed origins
+  if (!corsHeaders['Access-Control-Allow-Origin']) {
+    console.error('CORS blocked: origin not allowed', origin);
+    return new Response(
+      JSON.stringify({ error: 'Origin not allowed' }),
+      { status: 403, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -35,9 +87,17 @@ serve(async (req) => {
       throw new Error("Invalid user token");
     }
 
-    const { successUrl, cancelUrl, amount = 300 } = await req.json();
+    const { successUrl, cancelUrl, planId = 'pro' } = await req.json();
 
-    console.log("Creating Yoco checkout for user:", user.id);
+    // Server-side price lookup - NEVER trust client amount
+    const plan = PLANS[planId];
+    if (!plan) {
+      console.error(`Invalid plan requested: ${planId}`);
+      throw new Error(`Invalid plan: ${planId}. Available plans: ${Object.keys(PLANS).join(', ')}`);
+    }
+
+    const amount = plan.amount;
+    console.log(`Creating Yoco checkout for user: ${user.id}, plan: ${planId}, amount: ${amount}`);
 
     // Create Yoco checkout
     const yocoResponse = await fetch("https://payments.yoco.com/api/checkouts", {
@@ -47,13 +107,13 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        amount: amount, // Amount in cents (R3.00 = 300 cents)
+        amount: amount, // Amount in cents from server-side lookup
         currency: "ZAR",
-        successUrl: successUrl || `${req.headers.get("origin")}/payment-success`,
-        cancelUrl: cancelUrl || `${req.headers.get("origin")}/`,
+        successUrl: successUrl || `${origin}/payment-success`,
+        cancelUrl: cancelUrl || `${origin}/`,
         metadata: {
           user_id: user.id,
-          plan: "pro",
+          plan: planId,
         },
       }),
     });
@@ -73,7 +133,7 @@ serve(async (req) => {
       .insert({
         user_id: user.id,
         status: "pending",
-        plan: "pro",
+        plan: planId,
         amount: amount,
         currency: "ZAR",
         yoco_checkout_id: yocoData.id,

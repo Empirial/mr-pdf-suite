@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Crop, Download, Loader2, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,9 +7,9 @@ import { Label } from "@/components/ui/label";
 import UploadZone from "@/components/UploadZone";
 import { useToast } from "@/hooks/use-toast";
 import { PDFDocument } from "pdf-lib";
-import * as pdfjsLib from "pdfjs-dist";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Type for dynamically imported library
+type PdfjsLibType = typeof import("pdfjs-dist");
 
 const CropPdf = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -20,26 +20,39 @@ const CropPdf = () => {
   const [pageImage, setPageImage] = useState<string>("");
   const [cropMargins, setCropMargins] = useState({ top: 0, bottom: 0, left: 0, right: 0 });
   const [applyToAll, setApplyToAll] = useState(true);
+  const [pdfjsLib, setPdfjsLib] = useState<PdfjsLibType | null>(null);
   const { toast } = useToast();
+
+  // Dynamically load pdfjs-dist when needed
+  const loadPdfjs = async (): Promise<PdfjsLibType> => {
+    if (pdfjsLib) return pdfjsLib;
+    const lib = await import("pdfjs-dist") as PdfjsLibType;
+    lib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${lib.version}/pdf.worker.min.js`;
+    setPdfjsLib(lib);
+    return lib;
+  };
 
   const handleFilesSelected = useCallback(async (files: File[]) => {
     if (files.length > 0) {
+      const lib = await loadPdfjs();
       setFile(files[0]);
       const arrayBuffer = await files[0].arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pdf = await lib.getDocument({ data: arrayBuffer }).promise;
       setPageCount(pdf.numPages);
       setCurrentPage(1);
-      renderPage(arrayBuffer, 1);
+      renderPage(lib, arrayBuffer, 1);
     }
   }, []);
 
-  const renderPage = async (arrayBuffer: ArrayBuffer, pageNum: number) => {
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const renderPage = async (lib: PdfjsLibType, arrayBuffer: ArrayBuffer, pageNum: number) => {
+    const pdf = await lib.getDocument({ data: arrayBuffer }).promise;
     const page = await pdf.getPage(pageNum);
     const viewport = page.getViewport({ scale: 1.5 });
 
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d")!;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
@@ -48,10 +61,10 @@ const CropPdf = () => {
   };
 
   useEffect(() => {
-    if (file) {
-      file.arrayBuffer().then((buffer) => renderPage(buffer, currentPage));
+    if (file && pdfjsLib) {
+      file.arrayBuffer().then((buffer) => renderPage(pdfjsLib, buffer, currentPage));
     }
-  }, [currentPage, file]);
+  }, [currentPage, file, pdfjsLib]);
 
   const cropPdf = async () => {
     if (!file) return;
@@ -85,9 +98,10 @@ const CropPdf = () => {
       URL.revokeObjectURL(url);
 
       toast({ title: "Success", description: "PDF cropped successfully!" });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Crop error:", error);
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setProcessing(false);
     }
