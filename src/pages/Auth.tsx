@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/mr-pdf-logo.jpg";
-import ThemeToggle from "@/components/ThemeToggle";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,19 +14,20 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        navigate("/");
+        navigate("/dashboard");
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        navigate("/");
+        navigate("/dashboard");
       }
     });
 
@@ -58,7 +57,7 @@ const Auth = () => {
           description: "You have successfully logged in.",
         });
       } else {
-        const redirectUrl = `${window.location.origin}/`;
+        const redirectUrl = `${window.location.origin}/dashboard`;
         
         const { error } = await supabase.auth.signUp({
           email,
@@ -95,119 +94,185 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="MR PDF Logo" className="h-12 w-auto rounded-lg" />
-              <div>
-                <h1 className="text-xl font-bold text-foreground">MR PDF</h1>
-                <p className="text-xs text-muted-foreground">Professional PDF Suite</p>
+    <div className="min-h-screen flex">
+      {/* Left Panel - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-dark relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(38_65%_50%_/_0.15),_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(40_70%_55%_/_0.1),_transparent_50%)]" />
+        
+        <div className="relative z-10 flex flex-col justify-center items-center w-full p-12">
+          <div className="max-w-md text-center">
+            {/* Logo */}
+            <div className="mb-8 flex justify-center">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-gold rounded-full opacity-20 blur-xl" />
+                <img 
+                  src={logo} 
+                  alt="MR PDF" 
+                  className="relative h-24 w-24 rounded-2xl shadow-2xl"
+                />
               </div>
-            </Link>
-            <ThemeToggle />
+            </div>
+            
+            <h1 className="text-4xl font-bold text-white mb-4">
+              MR <span className="text-gradient-gold">PDF</span>
+            </h1>
+            
+            <p className="text-lg text-white/70 mb-8">
+              Your complete professional PDF toolkit. Convert, merge, compress, and secure your documents with ease.
+            </p>
+            
+            {/* Feature highlights */}
+            <div className="space-y-4 text-left">
+              {[
+                "15 powerful PDF tools in one place",
+                "100% secure & private processing",
+                "Works on all devices"
+              ].map((feature, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="h-2 w-2 rounded-full bg-gradient-gold" />
+                  <span className="text-white/80 text-sm">{feature}</span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-12 pt-8 border-t border-white/10">
+              <p className="text-white/50 text-sm">🇿🇦 Proudly South African</p>
+            </div>
           </div>
         </div>
-      </header>
+        
+        {/* Decorative elements */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      </div>
 
-      <main className="flex items-center justify-center py-16 px-4">
+      {/* Right Panel - Form */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-background">
         <div className="w-full max-w-md">
-          <div className="bg-card border border-border rounded-2xl p-8 shadow-lg">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-foreground mb-2">
-                {isLogin ? "Welcome Back" : "Create Account"}
-              </h2>
-              <p className="text-muted-foreground">
-                {isLogin
-                  ? "Sign in to access your PDF tools"
-                  : "Sign up to get started with MR PDF"}
-              </p>
+          {/* Mobile logo */}
+          <div className="lg:hidden flex justify-center mb-8">
+            <Link to="/" className="flex items-center gap-3">
+              <img src={logo} alt="MR PDF" className="h-12 w-12 rounded-xl" />
+              <span className="text-2xl font-bold text-foreground">MR PDF</span>
+            </Link>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-foreground mb-2">
+              {isLogin ? "Welcome back" : "Create account"}
+            </h2>
+            <p className="text-muted-foreground">
+              {isLogin
+                ? "Enter your credentials to access your dashboard"
+                : "Start your journey with MR PDF today"}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-sm font-medium text-foreground">
+                  Full Name
+                </Label>
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="John Doe"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="pl-12 h-12 bg-secondary/50 border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl transition-all"
+                    required={!isLogin}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                Email Address
+              </Label>
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-12 h-12 bg-secondary/50 border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl transition-all"
+                  required
+                />
+              </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="fullName"
-                      type="text"
-                      placeholder="John Doe"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="pl-10"
-                      required={!isLogin}
-                    />
-                  </div>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                Password
+              </Label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-12 pr-12 h-12 bg-secondary/50 border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl transition-all"
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 bg-gradient-gold hover:opacity-90 text-primary-foreground font-semibold rounded-xl shadow-gold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                  Please wait...
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  {isLogin ? "Sign In" : "Create Account"}
+                  <ArrowRight className="h-5 w-5" />
                 </div>
               )}
+            </Button>
+          </form>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
-                    required
-                    minLength={6}
-                  />
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-primary hover:bg-primary/90"
-                disabled={loading}
-              >
-                {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center">
+          <div className="mt-8 text-center">
+            <p className="text-muted-foreground">
+              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-primary hover:underline"
+                className="text-primary font-semibold hover:underline underline-offset-4"
               >
-                {isLogin
-                  ? "Don't have an account? Sign up"
-                  : "Already have an account? Sign in"}
+                {isLogin ? "Sign up" : "Sign in"}
               </button>
-            </div>
-
-            <Link
-              to="/"
-              className="flex items-center justify-center gap-2 mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Link>
+            </p>
           </div>
+
+          <Link
+            to="/"
+            className="flex items-center justify-center gap-2 mt-8 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Back to Home
+          </Link>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
