@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
 import CameraScanner from "./pages/CameraScanner";
 import SignPdf from "./pages/SignPdf";
 import Converter from "./pages/Converter";
@@ -50,6 +51,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/tools" element={<Index />} />
           <Route path="/scan" element={<CameraScanner />} />
           <Route path="/sign" element={<SignPdf />} />
