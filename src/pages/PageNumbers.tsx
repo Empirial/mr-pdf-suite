@@ -3,11 +3,9 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Hash, Upload, Download, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import logo from "@/assets/mr-pdf-logo.jpg";
-import ThemeToggle from "@/components/ThemeToggle";
+import { Hash, Upload, Download } from "lucide-react";
 import { downloadPDF } from "@/utils/pdfUtils";
+import ToolPageLayout from "@/components/ToolPageLayout";
 
 type Position = "bottom-center" | "bottom-left" | "bottom-right" | "top-center" | "top-left" | "top-right";
 
@@ -38,7 +36,6 @@ const PageNumbers = () => {
 
   const getCoordinates = (pos: Position, pageWidth: number, pageHeight: number, textWidth: number) => {
     const margin = 40;
-    const fontSize = 12;
     
     switch (pos) {
       case "top-left":
@@ -99,88 +96,62 @@ const PageNumbers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="MR PDF Logo" className="h-12 w-auto rounded-lg" />
-              <div>
-                <h1 className="text-xl font-bold text-foreground">MR PDF</h1>
-                <p className="text-xs text-muted-foreground">Professional PDF Suite</p>
-              </div>
-            </Link>
-            <ThemeToggle />
+    <ToolPageLayout
+      title="Add Page Numbers"
+      description="Add page numbers to your PDF document"
+      icon={Hash}
+      iconColor="#8B5CF6"
+    >
+      <div className="bg-card border border-border rounded-2xl p-8 space-y-6">
+        <div>
+          <Label htmlFor="pdf-upload" className="block mb-2">Upload PDF</Label>
+          <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors">
+            <input
+              id="pdf-upload"
+              type="file"
+              accept=".pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <label htmlFor="pdf-upload" className="cursor-pointer">
+              <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+              <p className="text-foreground font-medium">
+                {file ? file.name : "Click to upload PDF"}
+              </p>
+            </label>
           </div>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-12">
-        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Tools
-        </Link>
-
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="w-16 h-16 rounded-xl bg-violet-500/10 flex items-center justify-center mx-auto mb-4">
-              <Hash className="h-8 w-8 text-violet-500" />
-            </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Add Page Numbers</h1>
-            <p className="text-muted-foreground">Add page numbers to your PDF document</p>
-          </div>
-
-          <div className="bg-card border border-border rounded-2xl p-8 space-y-6">
-            <div>
-              <Label htmlFor="pdf-upload" className="block mb-2">Upload PDF</Label>
-              <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors">
-                <input
-                  id="pdf-upload"
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                <label htmlFor="pdf-upload" className="cursor-pointer">
-                  <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-foreground font-medium">
-                    {file ? file.name : "Click to upload PDF"}
-                  </p>
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <Label className="block mb-3">Position</Label>
-              <div className="grid grid-cols-3 gap-3">
-                {positions.map(pos => (
-                  <button
-                    key={pos.value}
-                    onClick={() => setPosition(pos.value)}
-                    className={`p-3 rounded-xl border-2 text-sm font-medium transition-all ${
-                      position === pos.value
-                        ? "border-violet-500 bg-violet-500/10 text-violet-500"
-                        : "border-border hover:border-violet-500/50"
-                    }`}
-                  >
-                    {pos.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <Button
-              onClick={handleAddPageNumbers}
-              disabled={!file || isProcessing}
-              className="w-full bg-violet-500 hover:bg-violet-600"
-            >
-              {isProcessing ? "Processing..." : "Add Page Numbers"}
-              <Download className="ml-2 h-4 w-4" />
-            </Button>
+        <div>
+          <Label className="block mb-3">Position</Label>
+          <div className="grid grid-cols-3 gap-3">
+            {positions.map(pos => (
+              <button
+                key={pos.value}
+                onClick={() => setPosition(pos.value)}
+                className={`p-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                  position === pos.value
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                {pos.label}
+              </button>
+            ))}
           </div>
         </div>
-      </main>
-    </div>
+
+        <Button
+          onClick={handleAddPageNumbers}
+          disabled={!file || isProcessing}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+          size="lg"
+        >
+          {isProcessing ? "Processing..." : "Add Page Numbers"}
+          <Download className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    </ToolPageLayout>
   );
 };
 
