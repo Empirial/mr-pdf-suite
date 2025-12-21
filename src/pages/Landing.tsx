@@ -350,12 +350,12 @@ const Landing = () => {
                 © 2025 MR PDF. All rights reserved. | www.mrpdf.co.za
               </p>
               <div className="flex gap-6 text-sm">
-                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
                   Privacy Policy
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                </Link>
+                <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </div>
             </div>
           </div>
