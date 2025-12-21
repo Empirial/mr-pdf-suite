@@ -2,8 +2,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Server-side pricing - NEVER trust client for amounts
+// $5/month = ~R90 at current rates
 const PLANS: Record<string, { amount: number; name: string }> = {
-  'pro': { amount: 300, name: 'Pro Plan' }, // R3.00 = 300 cents
+  'pro': { amount: 9000, name: 'Pro Plan' }, // R90.00 = 9000 cents (~$5 USD)
 };
 
 // Secure CORS helper

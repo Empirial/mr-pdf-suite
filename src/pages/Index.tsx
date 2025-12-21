@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
-import Header from "@/components/Header";
+import { Link } from "react-router-dom";
+import ToolsNavHeader from "@/components/ToolsNavHeader";
+import SubscriptionGuard from "@/components/SubscriptionGuard";
 import HeroSection from "@/components/HeroSection";
 import UploadZone from "@/components/UploadZone";
 import FilesList from "@/components/FilesList";
@@ -17,7 +19,6 @@ const Index = () => {
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
 
   const handleFilesSelected = useCallback((newFiles: File[]) => {
-    // Validate file types and sizes
     const invalidFiles = newFiles.filter(f => f.type !== "application/pdf");
     const oversizedFiles = newFiles.filter(f => f.size > 50 * 1024 * 1024);
     
@@ -91,99 +92,94 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-12">
-        <div className="mx-auto max-w-6xl space-y-12">
-          {/* Hero Section with Instructions */}
-          {files.length === 0 && (
-            <>
-              <HeroSection />
-              
-              {/* Upload Zone */}
-              <div className="animate-fade-in">
-                <UploadZone
-                  onFilesSelected={handleFilesSelected}
-                  isDragging={isDragging}
-                  onDragEnter={() => setIsDragging(true)}
-                  onDragLeave={() => setIsDragging(false)}
+    <SubscriptionGuard>
+      <div className="min-h-screen bg-background flex flex-col">
+        <ToolsNavHeader />
+        
+        <main className="container mx-auto px-4 py-12 flex-1">
+          <div className="mx-auto max-w-6xl space-y-12">
+            {files.length === 0 && (
+              <>
+                <HeroSection />
+                <div className="animate-fade-in">
+                  <UploadZone
+                    onFilesSelected={handleFilesSelected}
+                    isDragging={isDragging}
+                    onDragEnter={() => setIsDragging(true)}
+                    onDragLeave={() => setIsDragging(false)}
+                  />
+                </div>
+              </>
+            )}
+
+            {files.length > 0 && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-foreground">Your PDFs</h2>
+                  <button
+                    onClick={handleReset}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Clear all
+                  </button>
+                </div>
+
+                <FilesList
+                  files={files}
+                  onReorder={handleReorder}
+                  onRemove={handleRemoveFile}
+                />
+
+                {!isComplete && (
+                  <div className="rounded-lg border-2 border-dashed border-border p-4 text-center hover:border-primary/50 transition-colors">
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        multiple
+                        accept=".pdf"
+                        onChange={(e) => {
+                          if (e.target.files) {
+                            handleFilesSelected(Array.from(e.target.files));
+                          }
+                        }}
+                        className="hidden"
+                      />
+                      <p className="text-sm text-muted-foreground">+ Add more PDFs</p>
+                    </label>
+                  </div>
+                )}
+
+                <CombineSection
+                  isProcessing={isProcessing}
+                  isComplete={isComplete}
+                  onCombine={handleCombine}
+                  onDownload={handleDownloadClick}
+                  fileCount={files.length}
                 />
               </div>
-            </>
-          )}
+            )}
+          </div>
+        </main>
 
-          {/* Files List */}
-          {files.length > 0 && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-foreground">
-                  Your PDFs
-                </h2>
-                <button
-                  onClick={handleReset}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Clear all
-                </button>
+        <DownloadDialog
+          open={showDownloadDialog}
+          onOpenChange={setShowDownloadDialog}
+          onDownload={handleDownload}
+        />
+
+        <footer className="border-t border-border py-6">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-muted-foreground">© 2025 MR PDF. All rights reserved.</p>
+              <div className="flex gap-6 text-sm">
+                <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link>
+                <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">Terms of Service</Link>
               </div>
-
-              <FilesList
-                files={files}
-                onReorder={handleReorder}
-                onRemove={handleRemoveFile}
-              />
-
-              {/* Add More Files */}
-              {!isComplete && (
-                <div className="rounded-lg border-2 border-dashed border-border p-4 text-center hover:border-primary/50 transition-colors">
-                  <label className="cursor-pointer">
-                    <input
-                      type="file"
-                      multiple
-                      accept=".pdf"
-                      onChange={(e) => {
-                        if (e.target.files) {
-                          const newFiles = Array.from(e.target.files);
-                          handleFilesSelected(newFiles);
-                        }
-                      }}
-                      className="hidden"
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      + Add more PDFs
-                    </p>
-                  </label>
-                </div>
-              )}
-
-              {/* Combine Section */}
-              <CombineSection
-                isProcessing={isProcessing}
-                isComplete={isComplete}
-                onCombine={handleCombine}
-                onDownload={handleDownloadClick}
-                fileCount={files.length}
-              />
             </div>
-          )}
-
-        </div>
-      </main>
-
-      {/* Download Dialog */}
-      <DownloadDialog
-        open={showDownloadDialog}
-        onOpenChange={setShowDownloadDialog}
-        onDownload={handleDownload}
-      />
-
-      <footer className="border-t border-border py-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          © 2025 MR PDF. All rights reserved. | www.mrpdf.co.za
-        </p>
-      </footer>
-    </div>
+          </div>
+        </footer>
+      </div>
+    </SubscriptionGuard>
   );
 };
 
