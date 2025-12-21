@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import { Crown, Loader2 } from "lucide-react";
+import mrPdfLogo from "@/assets/mr-pdf-logo.jpg";
 
 interface SubscriptionGuardProps {
   children: React.ReactNode;
@@ -39,8 +40,13 @@ const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
   if (authLoading || subLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+        <div className="text-center animate-fade-in">
+          <img 
+            src={mrPdfLogo} 
+            alt="MR PDF" 
+            className="h-16 w-16 rounded-xl mx-auto mb-4 shadow-lg"
+          />
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
           <p className="text-muted-foreground">Checking access...</p>
         </div>
       </div>
