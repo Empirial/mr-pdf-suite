@@ -29,6 +29,7 @@ import HtmlToPdf from "./pages/HtmlToPdf";
 import PdfToPdfa from "./pages/PdfToPdfa";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Subscribe from "./pages/Subscribe";
 
 // Lazy load heavy pages that use pdfjs-dist and tesseract.js
 const OcrPdf = lazy(() => import("./pages/OcrPdf"));
@@ -80,6 +81,7 @@ const App = () => (
           <Route path="/powerpoint-to-pdf" element={<PowerpointToPdf />} />
           <Route path="/html-to-pdf" element={<HtmlToPdf />} />
           <Route path="/pdf-to-pdfa" element={<PdfToPdfa />} />
+          <Route path="/subscribe" element={<Subscribe />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -1,12 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, EyeOff, Download, Loader2, FileText, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { EyeOff, Download, Loader2, FileText, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ToolsNavHeader from "@/components/ToolsNavHeader";
+import SubscriptionGuard from "@/components/SubscriptionGuard";
 import UploadZone from "@/components/UploadZone";
 import { useToast } from "@/hooks/use-toast";
 import { PDFDocument, rgb } from "pdf-lib";
 
-// Type for dynamically imported library
 type PdfjsLibType = typeof import("pdfjs-dist");
 
 interface RedactionArea {
@@ -33,7 +34,6 @@ const RedactPdf = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Dynamically load pdfjs-dist when needed
   const loadPdfjs = async (): Promise<PdfjsLibType> => {
     if (pdfjsLib) return pdfjsLib;
     const lib = await import("pdfjs-dist") as PdfjsLibType;
@@ -127,7 +127,6 @@ const RedactPdf = () => {
       const pdfDoc = await PDFDocument.load(arrayBuffer);
       const pages = pdfDoc.getPages();
 
-      // Calculate scale factor between preview and actual PDF
       const firstPage = pages[0];
       const { width: pdfWidth, height: pdfHeight } = firstPage.getSize();
       const scaleX = pdfWidth / pageDimensions.width;
@@ -137,7 +136,6 @@ const RedactPdf = () => {
         const page = pages[redaction.page - 1];
         const { height: pageHeight } = page.getSize();
         
-        // Convert coordinates and flip Y axis
         const x = redaction.x * scaleX;
         const y = pageHeight - (redaction.y + redaction.height) * scaleY;
         const width = redaction.width * scaleX;
@@ -174,175 +172,185 @@ const RedactPdf = () => {
   const currentPageRedactions = redactions.filter((r) => r.page === currentPage);
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                <EyeOff className="h-5 w-5 text-red-500" />
+    <SubscriptionGuard>
+      <div className="min-h-screen bg-background flex flex-col">
+        <ToolsNavHeader />
+
+        {/* Tool Header */}
+        <div className="border-b border-border bg-card">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-[#EF4444]/15">
+                <EyeOff className="h-6 w-6 text-[#EF4444]" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Redact PDF</h1>
-                <p className="text-sm text-muted-foreground">Remove sensitive information</p>
+                <h1 className="text-2xl font-bold text-foreground">Redact PDF</h1>
+                <p className="text-muted-foreground">Remove sensitive information</p>
               </div>
             </div>
           </div>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          {!file ? (
-            <UploadZone
-              onFilesSelected={handleFilesSelected}
-              isDragging={isDragging}
-              onDragEnter={() => setIsDragging(true)}
-              onDragLeave={() => setIsDragging(false)}
-            />
-          ) : (
-            <div className="grid lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-foreground">
-                    Draw rectangles to redact
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <span className="text-sm text-muted-foreground">
-                      Page {currentPage} of {pageCount}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setCurrentPage(Math.min(pageCount, currentPage + 1))}
-                      disabled={currentPage === pageCount}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
+        <main className="container mx-auto px-4 py-8 flex-1">
+          <div className="max-w-6xl mx-auto">
+            {!file ? (
+              <UploadZone
+                onFilesSelected={handleFilesSelected}
+                isDragging={isDragging}
+                onDragEnter={() => setIsDragging(true)}
+                onDragLeave={() => setIsDragging(false)}
+              />
+            ) : (
+              <div className="grid lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-foreground">
+                      Draw rectangles to redact
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-sm text-muted-foreground">
+                        Page {currentPage} of {pageCount}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setCurrentPage(Math.min(pageCount, currentPage + 1))}
+                        disabled={currentPage === pageCount}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div
+                    ref={canvasRef}
+                    className="relative border border-border rounded-lg overflow-hidden cursor-crosshair select-none"
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                  >
+                    {pageImage && (
+                      <img
+                        src={pageImage}
+                        alt="Page preview"
+                        className="w-full h-auto pointer-events-none"
+                        draggable={false}
+                      />
+                    )}
+                    {currentPageRedactions.map((r, i) => (
+                      <div
+                        key={i}
+                        className="absolute bg-black"
+                        style={{
+                          left: r.x,
+                          top: r.y,
+                          width: r.width,
+                          height: r.height,
+                        }}
+                      />
+                    ))}
+                    {currentRect && (
+                      <div
+                        className="absolute bg-black/50 border-2 border-red-500"
+                        style={{
+                          left: currentRect.x,
+                          top: currentRect.y,
+                          width: currentRect.width,
+                          height: currentRect.height,
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
-                <div
-                  ref={canvasRef}
-                  className="relative border border-border rounded-lg overflow-hidden cursor-crosshair select-none"
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
-                >
-                  {pageImage && (
-                    <img
-                      src={pageImage}
-                      alt="Page preview"
-                      className="w-full h-auto pointer-events-none"
-                      draggable={false}
-                    />
-                  )}
-                  {currentPageRedactions.map((r, i) => (
-                    <div
-                      key={i}
-                      className="absolute bg-black"
-                      style={{
-                        left: r.x,
-                        top: r.y,
-                        width: r.width,
-                        height: r.height,
-                      }}
-                    />
-                  ))}
-                  {currentRect && (
-                    <div
-                      className="absolute bg-black/50 border-2 border-red-500"
-                      style={{
-                        left: currentRect.x,
-                        top: currentRect.y,
-                        width: currentRect.width,
-                        height: currentRect.height,
-                      }}
-                    />
-                  )}
-                </div>
-              </div>
 
-              <div className="space-y-6">
-                <div className="bg-card border border-border rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <FileText className="h-6 w-6 text-primary" />
-                    <div>
-                      <p className="font-medium text-foreground">{file.name}</p>
-                      <p className="text-sm text-muted-foreground">{pageCount} pages</p>
+                <div className="space-y-6">
+                  <div className="bg-card border border-border rounded-xl p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <FileText className="h-6 w-6 text-primary" />
+                      <div>
+                        <p className="font-medium text-foreground">{file.name}</p>
+                        <p className="text-sm text-muted-foreground">{pageCount} pages</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 mb-4">
+                      <h4 className="font-medium text-foreground">
+                        Redaction Areas ({redactions.length})
+                      </h4>
+                      {redactions.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          Draw rectangles on the PDF to mark areas for redaction
+                        </p>
+                      ) : (
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {redactions.map((r, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between bg-muted rounded-lg px-3 py-2"
+                            >
+                              <span className="text-sm text-foreground">
+                                Page {r.page}: {Math.round(r.width)}x{Math.round(r.height)}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => removeRedaction(i)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="space-y-2 mb-4">
-                    <h4 className="font-medium text-foreground">
-                      Redaction Areas ({redactions.length})
-                    </h4>
-                    {redactions.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        Draw rectangles on the PDF to mark areas for redaction
-                      </p>
-                    ) : (
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
-                        {redactions.map((r, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between bg-muted rounded-lg px-3 py-2"
-                          >
-                            <span className="text-sm text-foreground">
-                              Page {r.page}: {Math.round(r.width)}x{Math.round(r.height)}
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => removeRedaction(i)}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                  <div className="flex flex-col gap-4">
+                    <Button variant="outline" onClick={() => setFile(null)}>
+                      Change File
+                    </Button>
+                    <Button onClick={redactPdf} disabled={processing || redactions.length === 0}>
+                      {processing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Redacting...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="h-4 w-4 mr-2" />
+                          Redact & Download
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
+              </div>
+            )}
+          </div>
+        </main>
 
-                <div className="flex flex-col gap-4">
-                  <Button variant="outline" onClick={() => setFile(null)}>
-                    Change File
-                  </Button>
-                  <Button onClick={redactPdf} disabled={processing || redactions.length === 0}>
-                    {processing ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Redacting...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="h-4 w-4 mr-2" />
-                        Redact & Download
-                      </>
-                    )}
-                  </Button>
-                </div>
+        <footer className="border-t border-border py-6 mt-auto">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-muted-foreground">© 2025 MR PDF. All rights reserved.</p>
+              <div className="flex gap-6 text-sm">
+                <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link>
+                <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">Terms of Service</Link>
               </div>
             </div>
-          )}
-        </div>
-      </main>
-    </div>
+          </div>
+        </footer>
+      </div>
+    </SubscriptionGuard>
   );
 };
 

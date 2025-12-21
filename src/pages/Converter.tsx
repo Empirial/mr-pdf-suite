@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { FileImage, FileText, Trash2, FileDown, X } from "lucide-react";
-import Header from "@/components/Header";
-import PageHeader from "@/components/PageHeader";
+import ToolsNavHeader from "@/components/ToolsNavHeader";
+import SubscriptionGuard from "@/components/SubscriptionGuard";
 import DownloadDialog from "@/components/DownloadDialog";
 import ImageUploadZone from "@/components/ImageUploadZone";
 import { Button } from "@/components/ui/button";
@@ -181,106 +182,123 @@ const Converter = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <SubscriptionGuard>
+      <div className="min-h-screen bg-background flex flex-col">
+        <ToolsNavHeader />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-4xl space-y-8">
-          <PageHeader
-            title="File Converter"
-            description="Convert images and text files to PDF format"
-            icon={<FileImage className="h-7 w-7 text-primary" />}
-          />
-
-          <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); clearImages(); setTextContent(""); }}>
-            <TabsList className="grid grid-cols-5 w-full">
-              <TabsTrigger value="jpg">JPG</TabsTrigger>
-              <TabsTrigger value="png">PNG</TabsTrigger>
-              <TabsTrigger value="bmp">BMP</TabsTrigger>
-              <TabsTrigger value="webp">WebP</TabsTrigger>
-              <TabsTrigger value="text">Text</TabsTrigger>
-            </TabsList>
-
-            <div className="mt-6 p-6 rounded-lg border border-border bg-card">
-              <TabsContent value="jpg" className="mt-0">
-                <h3 className="text-xl font-semibold mb-4">JPG to PDF</h3>
-                {renderImageConverter(["image/jpeg", ".jpg", ".jpeg"], "JPG")}
-              </TabsContent>
-
-              <TabsContent value="png" className="mt-0">
-                <h3 className="text-xl font-semibold mb-4">PNG to PDF</h3>
-                {renderImageConverter(["image/png", ".png"], "PNG")}
-              </TabsContent>
-
-              <TabsContent value="bmp" className="mt-0">
-                <h3 className="text-xl font-semibold mb-4">BMP to PDF</h3>
-                {renderImageConverter(["image/bmp", ".bmp"], "BMP", true)}
-              </TabsContent>
-
-              <TabsContent value="webp" className="mt-0">
-                <h3 className="text-xl font-semibold mb-4">WebP to PDF</h3>
-                {renderImageConverter(["image/webp", ".webp"], "WebP", true)}
-              </TabsContent>
-
-              <TabsContent value="text" className="mt-0">
-                <h3 className="text-xl font-semibold mb-4">Text to PDF</h3>
-                <div className="space-y-6">
-                  <div className="flex gap-4 items-center">
-                    <label className="cursor-pointer">
-                      <input
-                        type="file"
-                        accept=".txt"
-                        onChange={handleTextFileUpload}
-                        className="hidden"
-                      />
-                      <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent transition-colors">
-                        <FileText className="h-4 w-4" />
-                        Upload .txt file
-                      </span>
-                    </label>
-                    <span className="text-muted-foreground">or type below</span>
-                  </div>
-
-                  <Textarea
-                    value={textContent}
-                    onChange={(e) => setTextContent(e.target.value)}
-                    placeholder="Enter your text here..."
-                    className="min-h-[200px] resize-y"
-                  />
-
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground">
-                      {textContent.length} characters
-                    </p>
-                    <Button
-                      size="lg"
-                      onClick={handleConvertText}
-                      disabled={!textContent.trim() || isProcessing}
-                      className="gap-2"
-                    >
-                      <FileDown className="h-5 w-5" />
-                      {isProcessing ? "Converting..." : "Convert to PDF"}
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
+        {/* Tool Header */}
+        <div className="border-b border-border bg-card">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-[#F59E0B]/15">
+                <FileImage className="h-6 w-6 text-[#F59E0B]" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">File Converter</h1>
+                <p className="text-muted-foreground">Convert images and text files to PDF format</p>
+              </div>
             </div>
-          </Tabs>
+          </div>
         </div>
-      </main>
 
-      <DownloadDialog
-        open={showDownloadDialog}
-        onOpenChange={setShowDownloadDialog}
-        onDownload={handleDownload}
-      />
+        <main className="container mx-auto px-4 py-8 flex-1">
+          <div className="mx-auto max-w-4xl space-y-8">
+            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); clearImages(); setTextContent(""); }}>
+              <TabsList className="grid grid-cols-5 w-full">
+                <TabsTrigger value="jpg">JPG</TabsTrigger>
+                <TabsTrigger value="png">PNG</TabsTrigger>
+                <TabsTrigger value="bmp">BMP</TabsTrigger>
+                <TabsTrigger value="webp">WebP</TabsTrigger>
+                <TabsTrigger value="text">Text</TabsTrigger>
+              </TabsList>
 
-      <footer className="border-t border-border py-6 text-center mt-12">
-        <p className="text-sm text-muted-foreground">
-          © 2025 MR PDF. All rights reserved. | www.mrpdf.co.za
-        </p>
-      </footer>
-    </div>
+              <div className="mt-6 p-6 rounded-lg border border-border bg-card">
+                <TabsContent value="jpg" className="mt-0">
+                  <h3 className="text-xl font-semibold mb-4">JPG to PDF</h3>
+                  {renderImageConverter(["image/jpeg", ".jpg", ".jpeg"], "JPG")}
+                </TabsContent>
+
+                <TabsContent value="png" className="mt-0">
+                  <h3 className="text-xl font-semibold mb-4">PNG to PDF</h3>
+                  {renderImageConverter(["image/png", ".png"], "PNG")}
+                </TabsContent>
+
+                <TabsContent value="bmp" className="mt-0">
+                  <h3 className="text-xl font-semibold mb-4">BMP to PDF</h3>
+                  {renderImageConverter(["image/bmp", ".bmp"], "BMP", true)}
+                </TabsContent>
+
+                <TabsContent value="webp" className="mt-0">
+                  <h3 className="text-xl font-semibold mb-4">WebP to PDF</h3>
+                  {renderImageConverter(["image/webp", ".webp"], "WebP", true)}
+                </TabsContent>
+
+                <TabsContent value="text" className="mt-0">
+                  <h3 className="text-xl font-semibold mb-4">Text to PDF</h3>
+                  <div className="space-y-6">
+                    <div className="flex gap-4 items-center">
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept=".txt"
+                          onChange={handleTextFileUpload}
+                          className="hidden"
+                        />
+                        <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent transition-colors">
+                          <FileText className="h-4 w-4" />
+                          Upload .txt file
+                        </span>
+                      </label>
+                      <span className="text-muted-foreground">or type below</span>
+                    </div>
+
+                    <Textarea
+                      value={textContent}
+                      onChange={(e) => setTextContent(e.target.value)}
+                      placeholder="Enter your text here..."
+                      className="min-h-[200px] resize-y"
+                    />
+
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm text-muted-foreground">
+                        {textContent.length} characters
+                      </p>
+                      <Button
+                        size="lg"
+                        onClick={handleConvertText}
+                        disabled={!textContent.trim() || isProcessing}
+                        className="gap-2"
+                      >
+                        <FileDown className="h-5 w-5" />
+                        {isProcessing ? "Converting..." : "Convert to PDF"}
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+              </div>
+            </Tabs>
+          </div>
+        </main>
+
+        <DownloadDialog
+          open={showDownloadDialog}
+          onOpenChange={setShowDownloadDialog}
+          onDownload={handleDownload}
+        />
+
+        <footer className="border-t border-border py-6 mt-auto">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-muted-foreground">© 2025 MR PDF. All rights reserved.</p>
+              <div className="flex gap-6 text-sm">
+                <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link>
+                <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">Terms of Service</Link>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </SubscriptionGuard>
   );
 };
 

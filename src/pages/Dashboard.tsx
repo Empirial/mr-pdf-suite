@@ -204,8 +204,8 @@ const Dashboard = () => {
               © 2025 MR PDF. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
+              <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+              <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
               <a href="mailto:support@mrpdf.co.za" className="hover:text-foreground transition-colors">Support</a>
             </div>
           </div>
