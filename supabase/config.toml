@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.convert-document]
 verify_jwt = false
+
+[functions.register-yoco-webhook]
+verify_jwt = false
