@@ -1,10 +1,10 @@
 import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Presentation, Download, Loader2, FileText, AlertCircle } from "lucide-react";
+import { Presentation, Download, Loader2, FileText, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UploadZone from "@/components/UploadZone";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import ToolPageLayout from "@/components/ToolPageLayout";
 
 const PdfToPowerpoint = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -57,87 +57,67 @@ const PdfToPowerpoint = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
+    <ToolPageLayout
+      title="PDF to PowerPoint"
+      description="Convert PDF to PPTX slides"
+      icon={Presentation}
+      iconColor="#DC2626"
+    >
+      <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-6 flex items-start gap-3">
+        <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm text-foreground font-medium">Note about PDF to PowerPoint conversion</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Each PDF page becomes a slide. Complex formatting may need adjustment after conversion.
+          </p>
+        </div>
+      </div>
+
+      {!file ? (
+        <UploadZone
+          onFilesSelected={handleFilesSelected}
+          isDragging={isDragging}
+          onDragEnter={() => setIsDragging(true)}
+          onDragLeave={() => setIsDragging(false)}
+        />
+      ) : (
+        <div className="bg-card border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                <Presentation className="h-5 w-5 text-red-500" />
-              </div>
+              <FileText className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-xl font-bold text-foreground">PDF to PowerPoint</h1>
-                <p className="text-sm text-muted-foreground">Convert PDF to PPTX slides</p>
+                <p className="font-medium text-foreground">{file.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                </p>
               </div>
             </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-6 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm text-foreground font-medium">Note about PDF to PowerPoint conversion</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Each PDF page becomes a slide. Complex formatting may need adjustment after conversion.
-              </p>
-            </div>
+            <Button variant="outline" onClick={() => setFile(null)}>
+              Change File
+            </Button>
           </div>
 
-          {!file ? (
-            <UploadZone
-              onFilesSelected={handleFilesSelected}
-              isDragging={isDragging}
-              onDragEnter={() => setIsDragging(true)}
-              onDragLeave={() => setIsDragging(false)}
-            />
-          ) : (
-            <div className="bg-card border border-border rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <FileText className="h-10 w-10 text-primary" />
-                  <div>
-                    <p className="font-medium text-foreground">{file.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-                </div>
-                <Button variant="outline" onClick={() => setFile(null)}>
-                  Change File
-                </Button>
-              </div>
-
-              <Button
-                onClick={convertFile}
-                disabled={processing}
-                className="w-full"
-                size="lg"
-              >
-                {processing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Converting...
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4 mr-2" />
-                    Convert to PowerPoint
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
+          <Button
+            onClick={convertFile}
+            disabled={processing}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            size="lg"
+          >
+            {processing ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Converting...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Convert to PowerPoint
+              </>
+            )}
+          </Button>
         </div>
-      </main>
-    </div>
+      )}
+    </ToolPageLayout>
   );
 };
 

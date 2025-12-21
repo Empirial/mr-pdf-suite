@@ -4,11 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Scissors, Upload, Download, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import logo from "@/assets/mr-pdf-logo.jpg";
-import ThemeToggle from "@/components/ThemeToggle";
+import { Scissors, Upload, Download } from "lucide-react";
 import { downloadPDF } from "@/utils/pdfUtils";
+import ToolPageLayout from "@/components/ToolPageLayout";
 
 const SplitPdf = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -22,7 +20,6 @@ const SplitPdf = () => {
     if (uploadedFile && uploadedFile.type === "application/pdf") {
       setFile(uploadedFile);
       
-      // Get total pages
       const arrayBuffer = await uploadedFile.arrayBuffer();
       const pdfDoc = await PDFDocument.load(arrayBuffer);
       setTotalPages(pdfDoc.getPageCount());
@@ -41,12 +38,12 @@ const SplitPdf = () => {
       if (part.includes("-")) {
         const [start, end] = part.split("-").map(n => parseInt(n.trim()));
         for (let i = start; i <= end && i <= maxPages; i++) {
-          if (i >= 1) pages.push(i - 1); // Convert to 0-indexed
+          if (i >= 1) pages.push(i - 1);
         }
       } else {
         const num = parseInt(part);
         if (num >= 1 && num <= maxPages) {
-          pages.push(num - 1); // Convert to 0-indexed
+          pages.push(num - 1);
         }
       }
     }
@@ -87,88 +84,62 @@ const SplitPdf = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="MR PDF Logo" className="h-12 w-auto rounded-lg" />
-              <div>
-                <h1 className="text-xl font-bold text-foreground">MR PDF</h1>
-                <p className="text-xs text-muted-foreground">Professional PDF Suite</p>
-              </div>
-            </Link>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-12">
-        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Tools
-        </Link>
-
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="w-16 h-16 rounded-xl bg-purple-500/10 flex items-center justify-center mx-auto mb-4">
-              <Scissors className="h-8 w-8 text-purple-500" />
-            </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Split PDF</h1>
-            <p className="text-muted-foreground">Extract specific pages from your PDF</p>
-          </div>
-
-          <div className="bg-card border border-border rounded-2xl p-8 space-y-6">
-            <div>
-              <Label htmlFor="pdf-upload" className="block mb-2">Upload PDF</Label>
-              <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors">
-                <input
-                  id="pdf-upload"
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                <label htmlFor="pdf-upload" className="cursor-pointer">
-                  <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-foreground font-medium">
-                    {file ? file.name : "Click to upload PDF"}
-                  </p>
-                  {totalPages > 0 && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {totalPages} pages
-                    </p>
-                  )}
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="page-range">Page Range</Label>
-              <Input
-                id="page-range"
-                placeholder="e.g., 1-3, 5, 7-10"
-                value={pageRange}
-                onChange={(e) => setPageRange(e.target.value)}
-                className="mt-2"
-              />
-              <p className="text-sm text-muted-foreground mt-1">
-                Enter page numbers or ranges separated by commas
+    <ToolPageLayout
+      title="Split PDF"
+      description="Extract specific pages from your PDF"
+      icon={Scissors}
+      iconColor="#7C3AED"
+    >
+      <div className="bg-card border border-border rounded-2xl p-8 space-y-6">
+        <div>
+          <Label htmlFor="pdf-upload" className="block mb-2">Upload PDF</Label>
+          <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors">
+            <input
+              id="pdf-upload"
+              type="file"
+              accept=".pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <label htmlFor="pdf-upload" className="cursor-pointer">
+              <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+              <p className="text-foreground font-medium">
+                {file ? file.name : "Click to upload PDF"}
               </p>
-            </div>
-
-            <Button
-              onClick={handleSplit}
-              disabled={!file || !pageRange || isProcessing}
-              className="w-full bg-purple-500 hover:bg-purple-600"
-            >
-              {isProcessing ? "Processing..." : "Split PDF"}
-              <Download className="ml-2 h-4 w-4" />
-            </Button>
+              {totalPages > 0 && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {totalPages} pages
+                </p>
+              )}
+            </label>
           </div>
         </div>
-      </main>
-    </div>
+
+        <div>
+          <Label htmlFor="page-range">Page Range</Label>
+          <Input
+            id="page-range"
+            placeholder="e.g., 1-3, 5, 7-10"
+            value={pageRange}
+            onChange={(e) => setPageRange(e.target.value)}
+            className="mt-2"
+          />
+          <p className="text-sm text-muted-foreground mt-1">
+            Enter page numbers or ranges separated by commas
+          </p>
+        </div>
+
+        <Button
+          onClick={handleSplit}
+          disabled={!file || !pageRange || isProcessing}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+          size="lg"
+        >
+          {isProcessing ? "Processing..." : "Split PDF"}
+          <Download className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    </ToolPageLayout>
   );
 };
 

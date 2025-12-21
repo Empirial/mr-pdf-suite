@@ -1,9 +1,9 @@
 import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Presentation, Download, Loader2 } from "lucide-react";
+import { Presentation, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import ToolPageLayout from "@/components/ToolPageLayout";
 
 const PowerpointToPdf = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -74,98 +74,78 @@ const PowerpointToPdf = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
+    <ToolPageLayout
+      title="PowerPoint to PDF"
+      description="Convert PPTX to PDF"
+      icon={Presentation}
+      iconColor="#DC2626"
+    >
+      {!file ? (
+        <div
+          className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${
+            isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+          }`}
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          onDragEnter={() => setIsDragging(true)}
+          onDragLeave={() => setIsDragging(false)}
+        >
+          <Presentation className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Drop your PowerPoint file here
+          </h3>
+          <p className="text-muted-foreground mb-4">or click to browse</p>
+          <input
+            type="file"
+            accept=".ppt,.pptx"
+            onChange={handleFileInput}
+            className="hidden"
+            id="file-input"
+          />
+          <label htmlFor="file-input">
+            <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <span>Browse Files</span>
+            </Button>
+          </label>
+        </div>
+      ) : (
+        <div className="bg-card border border-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                <Presentation className="h-5 w-5 text-red-500" />
-              </div>
+              <Presentation className="h-10 w-10 text-red-500" />
               <div>
-                <h1 className="text-xl font-bold text-foreground">PowerPoint to PDF</h1>
-                <p className="text-sm text-muted-foreground">Convert PPTX to PDF</p>
+                <p className="font-medium text-foreground">{file.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                </p>
               </div>
             </div>
+            <Button variant="outline" onClick={() => setFile(null)}>
+              Change File
+            </Button>
           </div>
-        </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          {!file ? (
-            <div
-              className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${
-                isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-              }`}
-              onDrop={handleDrop}
-              onDragOver={(e) => e.preventDefault()}
-              onDragEnter={() => setIsDragging(true)}
-              onDragLeave={() => setIsDragging(false)}
-            >
-              <Presentation className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                Drop your PowerPoint file here
-              </h3>
-              <p className="text-muted-foreground mb-4">or click to browse</p>
-              <input
-                type="file"
-                accept=".ppt,.pptx"
-                onChange={handleFileInput}
-                className="hidden"
-                id="file-input"
-              />
-              <label htmlFor="file-input">
-                <Button asChild>
-                  <span>Browse Files</span>
-                </Button>
-              </label>
-            </div>
-          ) : (
-            <div className="bg-card border border-border rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <Presentation className="h-10 w-10 text-red-500" />
-                  <div>
-                    <p className="font-medium text-foreground">{file.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-                </div>
-                <Button variant="outline" onClick={() => setFile(null)}>
-                  Change File
-                </Button>
-              </div>
-
-              <Button
-                onClick={convertFile}
-                disabled={processing}
-                className="w-full"
-                size="lg"
-              >
-                {processing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Converting...
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4 mr-2" />
-                    Convert to PDF
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
+          <Button
+            onClick={convertFile}
+            disabled={processing}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            size="lg"
+          >
+            {processing ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Converting...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Convert to PDF
+              </>
+            )}
+          </Button>
         </div>
-      </main>
-    </div>
+      )}
+    </ToolPageLayout>
   );
 };
 
