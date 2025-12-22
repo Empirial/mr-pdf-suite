@@ -177,6 +177,14 @@ const Auth = () => {
                 ? "Enter your credentials to access your dashboard"
                 : "Get 3 days free access to all PDF tools"}
             </p>
+            
+            {/* Trial badge for signup */}
+            {!isLogin && (
+              <div className="mt-4 inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
+                <span className="text-lg">🎉</span>
+                3-Day Free Trial — No charge until trial ends
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
