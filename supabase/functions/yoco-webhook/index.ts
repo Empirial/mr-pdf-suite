@@ -67,17 +67,25 @@ serve(async (req) => {
 
       console.log("Found existing subscription:", JSON.stringify(existingSubscription, null, 2));
 
-      // Calculate expiry date (1 month from now)
+      // Calculate trial end date (3 days from now)
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() + 3);
+      
+      // Calculate full expiry date (3 days trial + 1 month subscription = ~34 days)
       const expiresAt = new Date();
-      expiresAt.setMonth(expiresAt.getMonth() + 1);
+      expiresAt.setDate(expiresAt.getDate() + 3); // Add trial days
+      expiresAt.setMonth(expiresAt.getMonth() + 1); // Add 1 month
+      
+      console.log("Setting trial end date to:", trialEndsAt.toISOString());
       console.log("Setting expiry date to:", expiresAt.toISOString());
 
-      // Update subscription status
+      // Update subscription status - start with trial
       const { data: updatedSubscription, error: updateError } = await supabase
         .from("subscriptions")
         .update({
-          status: "active",
+          status: "trial",
           yoco_payment_id: paymentId,
+          trial_ends_at: trialEndsAt.toISOString(),
           expires_at: expiresAt.toISOString(),
         })
         .eq("yoco_checkout_id", checkoutId)
@@ -89,7 +97,7 @@ serve(async (req) => {
         throw updateError;
       }
 
-      console.log("========== SUBSCRIPTION ACTIVATED ==========");
+      console.log("========== TRIAL STARTED ==========");
       console.log("Updated subscription:", JSON.stringify(updatedSubscription, null, 2));
       
     } else if (type === "payment.failed") {

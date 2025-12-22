@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
-import { Crown, Loader2 } from "lucide-react";
+import { Crown, Loader2, CreditCard } from "lucide-react";
 import mrPdfLogo from "@/assets/mr-pdf-logo.jpg";
 
 interface SubscriptionGuardProps {
@@ -14,7 +14,7 @@ const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
-  const { isLoading: subLoading, hasAccess, isTrialActive, trialDaysRemaining } = useSubscription(user?.id);
+  const { isLoading: subLoading, hasAccess, isTrialActive, trialDaysRemaining, needsPayment } = useSubscription(user?.id);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -58,29 +58,32 @@ const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
     return null;
   }
 
-  // User has no access - show upgrade prompt
-  if (!hasAccess) {
+  // User needs to pay to start trial
+  if (needsPayment && !hasAccess) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center">
           <div className="mb-6">
             <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <Crown className="h-10 w-10 text-primary" />
+              <CreditCard className="h-10 w-10 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">
-              Subscription Required
+              Start Your Free Trial
             </h1>
             <p className="text-muted-foreground">
-              Your trial has expired. Subscribe to continue using all PDF tools.
+              Get 3 days free, then continue with your subscription. Enter your card to begin.
             </p>
           </div>
 
           <div className="bg-card border border-border rounded-xl p-6 mb-6">
             <h2 className="font-semibold text-lg text-foreground mb-2">Pro Plan</h2>
-            <div className="mb-4">
+            <div className="mb-2">
               <span className="text-4xl font-bold text-foreground">$5</span>
               <span className="text-muted-foreground">/month</span>
             </div>
+            <p className="text-sm text-primary font-medium mb-4">
+              🎉 3-day free trial included!
+            </p>
             <ul className="text-sm text-muted-foreground space-y-2 text-left mb-6">
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -101,10 +104,13 @@ const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
             </ul>
             <Link to="/subscribe">
               <Button className="w-full" size="lg">
-                <Crown className="h-4 w-4 mr-2" />
-                Subscribe Now
+                <CreditCard className="h-4 w-4 mr-2" />
+                Start 3-Day Free Trial
               </Button>
             </Link>
+            <p className="text-xs text-muted-foreground mt-3">
+              Your card will be charged after the trial ends
+            </p>
           </div>
 
           <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -124,16 +130,16 @@ const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
             🎉 Trial Active: {trialDaysRemaining} day{trialDaysRemaining !== 1 ? 's' : ''} remaining
           </span>
           {" · "}
-          <Link to="/subscribe" className="text-primary underline hover:no-underline">
-            Subscribe now
-          </Link>
+          <span className="text-muted-foreground">
+            Your subscription begins after trial
+          </span>
         </div>
         {children}
       </>
     );
   }
 
-  // User has access
+  // User has access (subscribed)
   return <>{children}</>;
 };
 

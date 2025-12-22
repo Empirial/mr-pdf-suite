@@ -8,6 +8,7 @@ interface SubscriptionStatus {
   trialDaysRemaining: number;
   expiresAt: string | null;
   plan: string | null;
+  needsPayment: boolean;
 }
 
 export const useSubscription = (userId: string | undefined) => {
@@ -18,6 +19,7 @@ export const useSubscription = (userId: string | undefined) => {
     trialDaysRemaining: 0,
     expiresAt: null,
     plan: null,
+    needsPayment: false,
   });
 
   useEffect(() => {
@@ -28,26 +30,48 @@ export const useSubscription = (userId: string | undefined) => {
 
     const checkSubscription = async () => {
       try {
-        // Check for active subscription
+        // Check for subscription with trial or active status
         const { data: subscription, error } = await supabase
           .from("subscriptions")
           .select("*")
           .eq("user_id", userId)
-          .eq("status", "active")
+          .in("status", ["active", "trial"])
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
 
         if (error) {
           console.error("Error fetching subscription:", error);
-          setStatus(prev => ({ ...prev, isLoading: false }));
+          setStatus(prev => ({ ...prev, isLoading: false, needsPayment: true }));
           return;
         }
 
-        // Check if subscription is still valid
-        if (subscription && subscription.expires_at) {
+        const now = new Date();
+
+        // Check if user is in trial period (paid but within 3 days)
+        if (subscription?.status === "trial" && subscription.trial_ends_at) {
+          const trialEndsAt = new Date(subscription.trial_ends_at);
+          
+          if (trialEndsAt > now) {
+            const remainingMs = trialEndsAt.getTime() - now.getTime();
+            const remainingDays = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
+            
+            setStatus({
+              isLoading: false,
+              isSubscribed: false,
+              isTrialActive: true,
+              trialDaysRemaining: remainingDays,
+              expiresAt: subscription.trial_ends_at,
+              plan: "trial",
+              needsPayment: false,
+            });
+            return;
+          }
+        }
+
+        // Check if subscription is active and not expired
+        if (subscription?.status === "active" && subscription.expires_at) {
           const expiresAt = new Date(subscription.expires_at);
-          const now = new Date();
           
           if (expiresAt > now) {
             setStatus({
@@ -57,40 +81,32 @@ export const useSubscription = (userId: string | undefined) => {
               trialDaysRemaining: 0,
               expiresAt: subscription.expires_at,
               plan: subscription.plan,
+              needsPayment: false,
             });
             return;
           }
         }
 
-        // Check for trial period (1 day from profile creation)
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("created_at")
-          .eq("user_id", userId)
-          .maybeSingle();
-
-        if (profile) {
-          const createdAt = new Date(profile.created_at);
-          const trialEndDate = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000); // 1 day trial
-          const now = new Date();
+        // Check if trial ended but subscription still active
+        if (subscription?.status === "trial" && subscription.expires_at) {
+          const expiresAt = new Date(subscription.expires_at);
           
-          if (trialEndDate > now) {
-            const remainingMs = trialEndDate.getTime() - now.getTime();
-            const remainingHours = Math.ceil(remainingMs / (1000 * 60 * 60));
-            
+          if (expiresAt > now) {
+            // Trial ended, transition to active subscription
             setStatus({
               isLoading: false,
-              isSubscribed: false,
-              isTrialActive: true,
-              trialDaysRemaining: remainingHours <= 24 ? 1 : 0,
-              expiresAt: trialEndDate.toISOString(),
-              plan: "trial",
+              isSubscribed: true,
+              isTrialActive: false,
+              trialDaysRemaining: 0,
+              expiresAt: subscription.expires_at,
+              plan: subscription.plan,
+              needsPayment: false,
             });
             return;
           }
         }
 
-        // No subscription and trial expired
+        // No valid subscription - user needs to pay to start trial
         setStatus({
           isLoading: false,
           isSubscribed: false,
@@ -98,10 +114,11 @@ export const useSubscription = (userId: string | undefined) => {
           trialDaysRemaining: 0,
           expiresAt: null,
           plan: null,
+          needsPayment: true,
         });
       } catch (err) {
         console.error("Error checking subscription:", err);
-        setStatus(prev => ({ ...prev, isLoading: false }));
+        setStatus(prev => ({ ...prev, isLoading: false, needsPayment: true }));
       }
     };
 

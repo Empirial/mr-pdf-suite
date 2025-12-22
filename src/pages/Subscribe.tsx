@@ -5,13 +5,13 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import ToolsNavHeader from "@/components/ToolsNavHeader";
 import { toast } from "sonner";
-import { Crown, Check, ArrowLeft, Calendar, CreditCard, Loader2 } from "lucide-react";
+import { Crown, Check, ArrowLeft, Calendar, CreditCard, Loader2, Gift } from "lucide-react";
 
 const Subscribe = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { isLoading, isSubscribed, isTrialActive, trialDaysRemaining, expiresAt, plan } = useSubscription(user?.id);
+  const { isLoading, isSubscribed, isTrialActive, trialDaysRemaining, expiresAt, plan, needsPayment } = useSubscription(user?.id);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -94,8 +94,15 @@ const Subscribe = () => {
             Back to Dashboard
           </Link>
 
-          <h1 className="text-3xl font-bold text-foreground mb-2">Subscription</h1>
-          <p className="text-muted-foreground mb-8">Manage your MR PDF subscription</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            {needsPayment ? "Start Your Free Trial" : "Subscription"}
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            {needsPayment 
+              ? "Get 3 days free access to all PDF tools"
+              : "Manage your MR PDF subscription"
+            }
+          </p>
 
           {/* Current Status */}
           <div className="bg-card border border-border rounded-xl p-6 mb-8">
@@ -105,20 +112,24 @@ const Subscribe = () => {
               <div className={`h-12 w-12 rounded-full flex items-center justify-center ${
                 isSubscribed ? "bg-primary/10" : isTrialActive ? "bg-amber-500/10" : "bg-muted"
               }`}>
-                <Crown className={`h-6 w-6 ${
-                  isSubscribed ? "text-primary" : isTrialActive ? "text-amber-500" : "text-muted-foreground"
-                }`} />
+                {needsPayment ? (
+                  <Gift className="h-6 w-6 text-primary" />
+                ) : (
+                  <Crown className={`h-6 w-6 ${
+                    isSubscribed ? "text-primary" : isTrialActive ? "text-amber-500" : "text-muted-foreground"
+                  }`} />
+                )}
               </div>
               <div>
                 <p className="font-semibold text-foreground">
-                  {isSubscribed ? "Pro Plan" : isTrialActive ? "Trial Active" : "No Active Plan"}
+                  {isSubscribed ? "Pro Plan" : isTrialActive ? "Trial Active" : "Start Your Trial"}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {isSubscribed 
                     ? "Full access to all tools" 
                     : isTrialActive 
                       ? `${trialDaysRemaining} day${trialDaysRemaining !== 1 ? 's' : ''} remaining`
-                      : "Subscribe to access all tools"
+                      : "3 days free, then $5/month"
                   }
                 </p>
               </div>
@@ -128,7 +139,7 @@ const Subscribe = () => {
               <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-3">
                 <Calendar className="h-4 w-4" />
                 <span>
-                  {isSubscribed ? "Expires" : "Trial ends"}: {new Date(expiresAt).toLocaleDateString("en-US", {
+                  {isTrialActive ? "Trial ends" : "Expires"}: {new Date(expiresAt).toLocaleDateString("en-US", {
                     weekday: "long",
                     year: "numeric",
                     month: "long",
@@ -143,7 +154,7 @@ const Subscribe = () => {
           <div className="relative rounded-2xl border-2 border-primary bg-card p-8 shadow-xl">
             <div className="absolute -top-4 left-1/2 -translate-x-1/2">
               <span className="bg-primary px-4 py-1.5 rounded-full text-xs font-semibold text-primary-foreground shadow-lg">
-                {isSubscribed ? "Current Plan" : "Recommended"}
+                {isSubscribed ? "Current Plan" : needsPayment ? "3 Days Free!" : "Recommended"}
               </span>
             </div>
 
@@ -153,7 +164,12 @@ const Subscribe = () => {
                 <span className="text-5xl font-bold text-foreground">$5</span>
                 <span className="text-lg text-muted-foreground ml-2">/month</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              {needsPayment && (
+                <p className="text-sm text-primary font-medium">
+                  🎉 First 3 days absolutely free!
+                </p>
+              )}
+              <p className="text-sm text-muted-foreground mt-1">
                 Billed monthly • Cancel anytime
               </p>
             </div>
@@ -181,6 +197,18 @@ const Subscribe = () => {
                   Currently Subscribed
                 </Button>
               </div>
+            ) : isTrialActive ? (
+              <div className="text-center">
+                <div className="bg-amber-500/10 rounded-lg px-4 py-3 mb-4">
+                  <p className="text-sm text-amber-600 dark:text-amber-400">
+                    Your trial is active! Subscription starts automatically after.
+                  </p>
+                </div>
+                <Button variant="outline" className="w-full" disabled>
+                  <Gift className="h-4 w-4 mr-2" />
+                  Trial Active - {trialDaysRemaining} days left
+                </Button>
+              </div>
             ) : (
               <Button
                 onClick={handleSubscribe}
@@ -196,15 +224,17 @@ const Subscribe = () => {
                 ) : (
                   <>
                     <CreditCard className="h-4 w-4 mr-2" />
-                    {isTrialActive ? "Subscribe Now" : "Start Subscription"}
+                    Start 3-Day Free Trial
                   </>
                 )}
               </Button>
             )}
 
-            <p className="text-center text-xs text-muted-foreground mt-4">
-              Secure payment via Yoco
-            </p>
+            {needsPayment && (
+              <p className="text-center text-xs text-muted-foreground mt-4">
+                Your card will be charged $5 after the 3-day trial • Secure payment via Yoco
+              </p>
+            )}
           </div>
 
           {/* Info */}

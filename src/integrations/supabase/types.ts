@@ -53,6 +53,7 @@ export type Database = {
           id: string
           plan: string
           status: string
+          trial_ends_at: string | null
           updated_at: string
           user_id: string
           yoco_checkout_id: string | null
@@ -66,6 +67,7 @@ export type Database = {
           id?: string
           plan?: string
           status?: string
+          trial_ends_at?: string | null
           updated_at?: string
           user_id: string
           yoco_checkout_id?: string | null
@@ -79,6 +81,7 @@ export type Database = {
           id?: string
           plan?: string
           status?: string
+          trial_ends_at?: string | null
           updated_at?: string
           user_id?: string
           yoco_checkout_id?: string | null
