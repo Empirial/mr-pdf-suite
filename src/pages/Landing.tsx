@@ -21,7 +21,6 @@ interface Tool {
 
 const Landing = () => {
   const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -60,40 +59,9 @@ const Landing = () => {
     "No file size limits",
     "100% secure & private",
     "Works on all devices",
-    "Priority support"
+    "No payment required"
   ];
 
-  const handleSubscribe = async () => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-yoco-checkout", {
-        body: {
-          amount: 500,
-          successUrl: `${window.location.origin}/payment-success`,
-          cancelUrl: window.location.origin,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create checkout",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -140,23 +108,24 @@ const Landing = () => {
         <section className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-                🇿🇦 Made in South Africa
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-sm font-medium mb-6">
+                <span className="text-lg">🎉</span>
+                100% Free — No Payment Required
               </div>
               <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
                 Your Complete PDF Toolkit
               </h1>
               <p className="text-xl text-muted-foreground mb-8 leading-relaxed max-w-2xl mx-auto">
                 15 powerful PDF tools in one place. Convert, merge, compress, and secure your documents with ease. 
-                Fast, private, and built for professionals.
+                Fast, private, and completely free.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
-                  onClick={() => user ? handleSubscribe() : navigate("/auth")}
+                  onClick={() => navigate(user ? "/dashboard" : "/auth")}
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-14 px-8 text-lg shadow-xl"
                 >
-                  Get Started - $5/month
+                  {user ? "Go to Dashboard" : "Get Started Free"}
                 </Button>
                 <Button 
                   variant="outline" 
@@ -168,7 +137,7 @@ const Landing = () => {
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
-                No credit card required for trial • Cancel anytime
+                🇿🇦 Made in South Africa • Free forever
               </p>
             </div>
           </div>
@@ -217,34 +186,35 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* 3. Pricing Section */}
+        {/* 3. Why Free Section */}
         <section className="py-20 md:py-24 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-16">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-                  Simple Pricing
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-sm font-medium mb-4">
+                  <span className="text-lg">🎁</span>
+                  100% Free
                 </span>
                 <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-                  One Price. All Tools.
+                  All Tools. Zero Cost.
                 </h2>
                 <p className="text-lg text-muted-foreground">
-                  No hidden fees. No surprises. Just powerful PDF tools.
+                  We believe everyone deserves access to professional PDF tools.
                 </p>
               </div>
 
               <div className="max-w-md mx-auto">
-                <div className="relative rounded-3xl border-2 border-primary bg-card p-8 md:p-10 shadow-2xl">
+                <div className="relative rounded-3xl border-2 border-green-500/50 bg-card p-8 md:p-10 shadow-2xl">
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="bg-primary px-6 py-2 rounded-full text-sm font-semibold text-primary-foreground shadow-lg">
-                      Best Value
+                    <span className="bg-green-500 px-6 py-2 rounded-full text-sm font-semibold text-white shadow-lg">
+                      Free Forever
                     </span>
                   </div>
 
                   <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-foreground mb-4">Pro Plan</h3>
+                    <h3 className="text-2xl font-bold text-foreground mb-4">Full Access</h3>
                     <div className="mb-4">
-                      <span className="text-6xl font-bold text-foreground">$5</span>
+                      <span className="text-6xl font-bold text-foreground">$0</span>
                       <span className="text-xl text-muted-foreground ml-2">/month</span>
                     </div>
                     <p className="text-muted-foreground">
@@ -255,8 +225,8 @@ const Landing = () => {
                   <ul className="space-y-4 mb-8">
                     {features.map(feature => (
                       <li key={feature} className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="h-4 w-4 text-primary" />
+                        <div className="h-6 w-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="h-4 w-4 text-green-500" />
                         </div>
                         <span className="text-foreground">{feature}</span>
                       </li>
@@ -264,15 +234,14 @@ const Landing = () => {
                   </ul>
 
                   <Button 
-                    onClick={handleSubscribe}
-                    disabled={loading}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-14 text-lg shadow-lg"
+                    onClick={() => navigate(user ? "/dashboard" : "/auth")}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold h-14 text-lg shadow-lg"
                   >
-                    {loading ? "Processing..." : user ? "Subscribe Now" : "Sign In to Subscribe"}
+                    {user ? "Go to Dashboard" : "Get Started Free"}
                   </Button>
 
                   <p className="text-center text-sm text-muted-foreground mt-6">
-                    Secure payment • Cancel anytime
+                    No credit card required • Free forever
                   </p>
                 </div>
               </div>
