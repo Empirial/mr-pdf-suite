@@ -65,6 +65,7 @@ const Dashboard = () => {
     { title: "PDF to PowerPoint", description: "Convert to presentation", icon: Presentation, href: "/pdf-to-powerpoint", color: "#DC2626", category: "Convert" },
     { title: "PDF to JPG", description: "Convert pages to images", icon: Image, href: "/pdf-to-jpg", color: "#F59E0B", category: "Convert" },
     { title: "PDF to PDF/A", description: "Archive-ready format", icon: FileCheck, href: "/pdf-to-pdfa", color: "#8B5CF6", category: "Convert" },
+    { title: "JPG to WebP", description: "Convert JPG to WebP", icon: Image, href: "/jpg-to-webp", color: "#10B981", category: "Convert" },
     
     // Convert to PDF
     { title: "Word to PDF", description: "Convert Word to PDF", icon: FileText, href: "/word-to-pdf", color: "#2563EB", category: "To PDF" },
