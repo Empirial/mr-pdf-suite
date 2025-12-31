@@ -48,6 +48,7 @@ const Landing = () => {
     { title: "Excel to PDF", description: "Turn Excel spreadsheets into PDF files.", icon: FileSpreadsheet, href: "/excel-to-pdf", color: "#059669" },
     { title: "PDF to JPG", description: "Convert PDF pages to JPG images.", icon: Image, href: "/pdf-to-jpg", color: "#F59E0B" },
     { title: "JPG to PDF", description: "Create PDFs from JPG images quickly.", icon: FileImage, href: "/convert", color: "#F59E0B" },
+    { title: "JPG to WebP", description: "Convert images to WebP for smaller file sizes.", icon: Image, href: "/jpg-to-webp", color: "#10B981" },
     { title: "HTML to PDF", description: "Convert web pages to PDF documents.", icon: Globe, href: "/html-to-pdf", color: "#6366F1" },
     { title: "Sign PDF", description: "Add electronic signatures to your PDFs.", icon: PenTool, href: "/sign", color: "#B8935C" },
     { title: "Protect PDF", description: "Secure your PDFs with password protection.", icon: Lock, href: "/protect", color: "#059669" },
