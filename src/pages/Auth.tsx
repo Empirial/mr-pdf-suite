@@ -21,16 +21,13 @@ const Auth = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        // After signup, redirect to subscribe page to start trial
-        if (event === "SIGNED_IN") {
-          navigate("/subscribe");
-        }
+        navigate("/dashboard");
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        navigate("/subscribe");
+        navigate("/dashboard");
       }
     });
 
@@ -60,7 +57,7 @@ const Auth = () => {
           description: "You have successfully logged in.",
         });
       } else {
-        const redirectUrl = `${window.location.origin}/subscribe`;
+        const redirectUrl = `${window.location.origin}/dashboard`;
         
         const { error } = await supabase.auth.signUp({
           email,
@@ -82,7 +79,7 @@ const Auth = () => {
         
         toast({
           title: "Account created!",
-          description: "Start your 3-day free trial by entering your card details.",
+          description: "Welcome to MR PDF! You now have free access to all tools.",
         });
       }
     } catch (error: any) {
@@ -125,11 +122,11 @@ const Auth = () => {
               Your complete professional PDF toolkit. Convert, merge, compress, and secure your documents with ease.
             </p>
 
-            {/* Trial highlight */}
+            {/* Free access highlight */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-8 border border-white/20">
-              <p className="text-white font-semibold text-lg mb-1">🎉 3-Day Free Trial</p>
+              <p className="text-white font-semibold text-lg mb-1">🎉 100% Free</p>
               <p className="text-white/70 text-sm">
-                Full access to all tools. No charge until trial ends.
+                Full access to all PDF tools. No payment required.
               </p>
             </div>
             
@@ -170,19 +167,19 @@ const Auth = () => {
 
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-foreground mb-2">
-              {isLogin ? "Welcome back" : "Start your free trial"}
+              {isLogin ? "Welcome back" : "Create your account"}
             </h2>
             <p className="text-muted-foreground">
               {isLogin
                 ? "Enter your credentials to access your dashboard"
-                : "Get 3 days free access to all PDF tools"}
+                : "Get free access to all PDF tools"}
             </p>
             
-            {/* Trial badge for signup */}
+            {/* Free badge for signup */}
             {!isLogin && (
               <div className="mt-4 inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
                 <span className="text-lg">🎉</span>
-                3-Day Free Trial — No charge until trial ends
+                100% Free — No payment required
               </div>
             )}
           </div>
@@ -264,7 +261,7 @@ const Auth = () => {
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2">
-                  {isLogin ? "Sign In" : "Start Free Trial"}
+                  {isLogin ? "Sign In" : "Create Account"}
                   <ArrowRight className="h-5 w-5" />
                 </div>
               )}
@@ -279,7 +276,7 @@ const Auth = () => {
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-primary font-semibold hover:underline underline-offset-4"
               >
-                {isLogin ? "Start free trial" : "Sign in"}
+                {isLogin ? "Create account" : "Sign in"}
               </button>
             </p>
           </div>
